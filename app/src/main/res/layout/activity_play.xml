@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:id="@+id/activity_play"
+    android:background="@android:color/black"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+
+    <ImageView
+        android:id="@+id/chosen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerInside"
+        android:adjustViewBounds="true"
+        android:layout_gravity="center" />
+
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:visibility="invisible"
+        android:scaleType="centerInside"
+        android:layout_gravity="bottom|start"
+        android:layout_marginEnd="40dp"
+        android:layout_marginRight="40dp"
+        app:srcCompat="@drawable/snoop"
+        android:id="@+id/snoop" />
+
+
+    <ImageView
+        android:id="@+id/pepe"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="10dp"
+        android:visibility="gone"
+        android:adjustViewBounds="true"
+        android:layout_gravity="top|start"
+        android:scaleType="centerCrop"
+        app:srcCompat="@drawable/select_spiderman" />
+
+
+    <ImageView
+        android:id="@+id/cluckinBell"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="10dp"
+        android:visibility="gone"
+        android:adjustViewBounds="true"
+        android:layout_gravity="top|center_horizontal"
+        android:scaleType="centerInside"
+        app:srcCompat="@drawable/big_smoke_order_selector" />
+
+    <ImageView
+        android:id="@+id/txt"
+        android:layout_width="50dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="70dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:adjustViewBounds="true"
+        android:layout_gravity="top|end"
+        android:scaleType="centerInside"
+        app:srcCompat="@drawable/text_selector" />
+
+    <ImageView
+        android:id="@+id/pencil"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="10dp"
+        android:adjustViewBounds="true"
+        android:visibility="gone"
+        android:layout_gravity="bottom|end"
+        android:scaleType="centerInside"
+        app:srcCompat="@drawable/pencil" />
+
+    <ImageView
+        android:id="@+id/palette"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="70dp"
+        android:layout_marginRight="70dp"
+        android:layout_marginBottom="10dp"
+        android:adjustViewBounds="true"
+        android:visibility="gone"
+        android:layout_gravity="bottom|end"
+        android:scaleType="centerInside"
+        app:srcCompat="@drawable/palette_button_selector" />
+
+    <ImageView
+        android:id="@+id/eraser"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="130dp"
+        android:layout_marginRight="130dp"
+        android:layout_marginBottom="10dp"
+        android:adjustViewBounds="true"
+        android:visibility="gone"
+        android:layout_gravity="bottom|end"
+        android:scaleType="centerInside"
+        app:srcCompat="@drawable/eraser" />
+
+    <ImageView
+        android:id="@+id/play"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="130dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:clickable="true"
+        android:adjustViewBounds="true"
+        android:visibility="gone"
+        android:layout_gravity="top|end"
+        android:scaleType="centerInside"
+        app:srcCompat="@drawable/play_selector" />
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="150dp"
+        android:background="@color/listViewBackground"
+        android:divider="@null"
+        android:layout_height="match_parent" />
+
+    <!--   chosen elements -->
+
+    <ImageView
+        android:id="@+id/glasses"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:adjustViewBounds="true"
+        android:scaleType="matrix"
+        android:src="@drawable/left"
+        android:layout_gravity="top"
+        android:visibility="gone"
+        />
+
+    <ImageView
+        android:id="@+id/joint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/joint"
+        android:scaleType="matrix"
+        android:visibility="gone"
+        android:layout_gravity="bottom|center_horizontal" />
+
+    <ImageView
+        android:id="@+id/chosenPepe"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:adjustViewBounds="true"
+        android:src="@drawable/pepe"
+        android:scaleType="matrix"
+        android:visibility="gone"
+        android:layout_gravity="end|center_vertical" />
+
+    <ImageView
+        android:id="@+id/save"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="10dp"
+        android:adjustViewBounds="true"
+        android:clickable="true"
+        android:scaleType="centerInside"
+        app:srcCompat="@drawable/save_selector" />
+
+</FrameLayout>
