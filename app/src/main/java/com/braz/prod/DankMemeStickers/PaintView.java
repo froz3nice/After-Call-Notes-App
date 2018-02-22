@@ -14,6 +14,7 @@ import android.graphics.EmbossMaskFilter;
 import android.graphics.MaskFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Bundle;
@@ -27,6 +28,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.braz.prod.DankMemeStickers.Activities.PlayActivity;
+
+import java.util.HashMap;
 
 import eltos.simpledialogfragment.color.SimpleColorDialog;
 
@@ -43,11 +46,12 @@ public class PaintView extends View {
     private Canvas mCanvas;
     private Path mPath;
     private Paint mBitmapPaint;
-    private Bitmap bitmapBackup;
-    private Canvas bitmapBackupCanvas;
     Context context;
     private Paint mPaint;
     private boolean callOnDraw;
+    private Integer lineID;
+    private Integer rememberLineId;
+
     public PaintView(Context c) {
         super(c);
         context = c;
@@ -85,7 +89,8 @@ public class PaintView extends View {
         invalidate();
     }
     public void stopOnDrawCall(){
-        callOnDraw = false;
+        //callOnDraw = false;
+        mPaint.setColor(Color.TRANSPARENT);
     }
 
     @Override
@@ -106,10 +111,13 @@ public class PaintView extends View {
         mPath.moveTo(x, y);
         mX = x;
         mY = y;
-
     }
 
     private void touch_move(float x, float y) {
+        Intent intent = new Intent();
+        intent.setAction("com.invisible.components");
+        getContext().sendBroadcast(intent);
+
         float dx = Math.abs(x - mX);
         float dy = Math.abs(y - mY);
         if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
@@ -127,6 +135,9 @@ public class PaintView extends View {
         mPath.reset();
         mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SCREEN));
         //mPaint.setMaskFilter(null);
+        Intent intent = new Intent();
+        intent.setAction("com.visible.components");
+        getContext().sendBroadcast(intent);
     }
 
     @Override

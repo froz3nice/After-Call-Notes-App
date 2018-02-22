@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -23,6 +24,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -46,6 +48,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import static com.braz.prod.DankMemeStickers.util.ProcessImage.rotateImageIfRequired;
+
 public class MainActivity extends AppCompatActivity {
     private static final int IMG_REQUEST_CODE = 188;
     private static final int CAMERA_REQUEST = 420;
@@ -56,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private Context context;
     private AdView mAdView;
     private LinearLayout adContainer;
-    ImageView upgrade,premium;
+    ImageView upgrade;
     // Listener that's called when we finish querying the items and
     // subscriptions we own
     IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
@@ -104,10 +108,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void removeAds() {
         adContainer.setVisibility(View.INVISIBLE);
-        upgrade.setVisibility(View.GONE);
+        //upgrade.setVisibility(View.GONE);
         PreferenceManager.getDefaultSharedPreferences(context).edit().putString("PREMIUM",getString(R.string.premium)).apply();
-        premium = (ImageView)findViewById(R.id.premium);
-        premium.setVisibility(View.VISIBLE);
+        upgrade.setImageResource(R.drawable.premium);
+        Resources r = context.getResources();
+        int dim = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, r.getDisplayMetrics());
+        upgrade.setMaxWidth(dim);
+        upgrade.setClickable(false);
+        //premium = (ImageView)findViewById(R.id.premium);
+        //premium.setVisibility(View.VISIBLE);
     }
 
     // Called by button press
@@ -130,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         selector = (ImageView)findViewById(R.id.choose);
         upgrade = (ImageView)findViewById(R.id.upgrade);
         adContainer = (LinearLayout) findViewById(R.id.adsContainer);
-        MobileAds.initialize(MainActivity.this, getString(R.string.admob_id));
+        MobileAds.initialize(this, getString(R.string.admob_id));
         mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder()
                 //.addTestDevice("9B4E29286B48BF606EC7E4767C788368")
@@ -193,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
     private void showUpgradeDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setMessage("Do you want to upgrade to a pro version for more dank meme faces, drawing mode, removed ads and more meme sounds?");
+        builder.setMessage("You want Dank meme faces, drawing mode, removed ads and some meme sounds? Then click Yeah m8 :)");
 
         builder.setPositiveButton("Yeah", new DialogInterface.OnClickListener() {
             @Override
@@ -302,21 +311,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public String createImageFromBitmap(Bitmap bitmap) {
-        String fileName = "myImage";//no .png or .jpg needed
-        try {
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-            FileOutputStream fo = openFileOutput(fileName, Context.MODE_PRIVATE);
-            fo.write(bytes.toByteArray());
-            // remember close file output
-            fo.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fileName = null;
-        }
-        return fileName;
-    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -359,34 +353,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
-    public Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
-    }
-
-    public Bitmap rotateImageIfRequired(Bitmap img, Context context, String selectedImage) throws IOException {
-            ExifInterface ei = new ExifInterface(selectedImage);
-            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
-
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    return rotateImage(img, 90);
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    return rotateImage(img, 180);
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    return rotateImage(img, 270);
-                default:
-                    return img;
-            }
-    }
-
-    public Bitmap rotateImage(Bitmap source, float angle) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
-                matrix, true);
+    public String createImageFromBitmap(Bitmap bitmap) {
+        String fileName = "myImage";//no .png or .jpg needed
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+            FileOutputStream fo = openFileOutput(fileName, Context.MODE_PRIVATE);
+            fo.write(bytes.toByteArray());
+            // remember close file output
+            fo.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            fileName = null;
+        }
+        return fileName;
     }
 }

@@ -6,9 +6,13 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.view.View;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -23,13 +27,37 @@ public class ProcessImage {
     /* it's on the external media. */
         Cursor cursor = context.getContentResolver().query(photoUri,
                 new String[] { MediaStore.Images.ImageColumns.ORIENTATION }, null, null, null);
-
-        if (cursor.getCount() != 1) {
-            return -1;
+        if (cursor != null) {
+            if (cursor.getCount() != 1) {
+                return -1;
+            }
+            cursor.moveToFirst();
+            return cursor.getInt(0);
         }
+        return -1;
+    }
 
-        cursor.moveToFirst();
-        return cursor.getInt(0);
+    public static Bitmap rotateImageIfRequired(Bitmap img, Context context, String selectedImage) throws IOException {
+        ExifInterface ei = new ExifInterface(selectedImage);
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return rotateImage(img, 90);
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return rotateImage(img, 180);
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return rotateImage(img, 270);
+            default:
+                return img;
+        }
+    }
+
+    public static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
     }
 
     public static Bitmap getCorrectlyOrientedImage(Context context, Uri photoUri) throws IOException {
@@ -37,7 +65,9 @@ public class ProcessImage {
         BitmapFactory.Options dbo = new BitmapFactory.Options();
         dbo.inJustDecodeBounds = true;
         BitmapFactory.decodeStream(is, null, dbo);
-        is.close();
+        if (is != null) {
+            is.close();
+        }
 
         int rotatedWidth, rotatedHeight;
         int orientation = getOrientation(context, photoUri);
@@ -64,7 +94,9 @@ public class ProcessImage {
         } else {
             srcBitmap = BitmapFactory.decodeStream(is);
         }
-        is.close();
+        if (is != null) {
+            is.close();
+        }
 
     /*
      * if the orientation is not 0 (or -1, which means we don't know), we
@@ -120,4 +152,21 @@ public class ProcessImage {
 
         return inSampleSize;
     }
+
+
+    public static Bitmap getScreenShot(View view) {
+        View screenView = view.getRootView();
+        screenView.setDrawingCacheEnabled(true);
+        Bitmap bitmap = Bitmap.createBitmap(screenView.getDrawingCache());
+        screenView.setDrawingCacheEnabled(false);
+        return bitmap;
+    }
+
+    public static Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
 }

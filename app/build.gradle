@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.1"
+    compileSdkVersion 26
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.braz.prod.DankMemeStickers"
-        minSdkVersion 14
-        targetSdkVersion 25
-        versionCode 5
-        versionName "1.04"
+        minSdkVersion 21
+        targetSdkVersion 26
+        versionCode 10
+        versionName "1.07"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -24,11 +24,14 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.github.bumptech.glide:glide:3.7.0'
+    implementation 'com.facebook.fresco:fresco:1.8.0'
+    // For animated GIF support
+    implementation 'com.facebook.fresco:animated-gif:1.8.0'
+
+    // Provide the Android support library (you might already have this or a similar dependency)
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.github.eltos:simpledialogfragment:2.1'
-    compile 'com.google.android.gms:play-services-ads:10.2.4'
-    compile 'com.android.support:appcompat-v7:25.2.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.google.android.gms:play-services-ads:11.8.0'
+    compile 'com.android.support:appcompat-v7:26.1.0'
     testCompile 'junit:junit:4.12'
 }
