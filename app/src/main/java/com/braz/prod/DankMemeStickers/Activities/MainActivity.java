@@ -3,113 +3,80 @@ package com.braz.prod.DankMemeStickers.Activities;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.telephony.TelephonyManager;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
+
+import com.braz.prod.DankMemeStickers.Activities.Base.BaseActivity;
+import com.braz.prod.DankMemeStickers.Interfaces.DialogCallback;
+import com.braz.prod.DankMemeStickers.Permissions.PermissionsCallback;
 import com.braz.prod.DankMemeStickers.R;
-import com.braz.prod.DankMemeStickers.util.IabHelper;
-import com.braz.prod.DankMemeStickers.util.IabResult;
-import com.braz.prod.DankMemeStickers.util.Inventory;
-import com.braz.prod.DankMemeStickers.util.ProcessImage;
-import com.braz.prod.DankMemeStickers.util.Purchase;
+import com.braz.prod.DankMemeStickers.util.PurchaseUtils.IabHelper;
+import com.braz.prod.DankMemeStickers.util.PurchaseUtils.MainPurchases;
+import com.braz.prod.DankMemeStickers.util.Utils;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 
-import org.acra.ReportingInteractionMode;
-import org.acra.annotation.ReportsCrashes;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
-import static com.braz.prod.DankMemeStickers.util.ProcessImage.rotateImageIfRequired;
+import static com.braz.prod.DankMemeStickers.Permissions.Permissions.REQUEST_WRITE_EXTERNAL_STORAGE;
+import static com.braz.prod.DankMemeStickers.Permissions.Permissions.hasPermissions;
+import static com.braz.prod.DankMemeStickers.util.DialogUtils.showUpgradeDialog;
 
-public class MainActivity extends AppCompatActivity {
-    private static final int IMG_REQUEST_CODE = 188;
-    private static final int CAMERA_REQUEST = 420;
-    private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 0x005;
-    private static final String SKU_REMOVE_ADS = "upgrade.to.pro.meme.stickers";//upgrade.to.pro.meme.stickers
-    private static final int RC_REQUEST = 0x0123;
-    private ImageView selector,camera;
+public class MainActivity extends BaseActivity {
+    private static final int IMG_REQUEST_CODE = 189;
+    private static final int VIDEO_REQUEST_CODE = 188;
+    private static final int CAMERA_REQUEST_PHOTO = 420;
+    private static final int CAMERA_REQUEST_VIDEO = 421;
+
+    private Button take_photo, uploadPhoto, takeVideo, uploadVideo;
     private Context context;
     private AdView mAdView;
     private LinearLayout adContainer;
     ImageView upgrade;
-    // Listener that's called when we finish querying the items and
-    // subscriptions we own
-    IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
-        public void onQueryInventoryFinished(IabResult result,
-                                             Inventory inventory) {
-            //Toast.makeText(context,"premium",Toast.LENGTH_SHORT).show();
+    private MainPurchases purchases;
 
-            // Have we been disposed of in the meantime? If so, quit.
-            if (mHelper == null)
-                return;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        context = getApplicationContext();
+        uploadPhoto = findViewById(R.id.upload_photo);
+        take_photo = findViewById(R.id.take_photo);
+        uploadVideo = findViewById(R.id.upload_video);
+        takeVideo = findViewById(R.id.take_video);
+        upgrade = findViewById(R.id.upgrade);
+        adContainer = findViewById(R.id.adsContainer);
+        MobileAds.initialize(this, getString(R.string.admob_id));
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder()
+                //.addTestDevice("9B4E29286B48BF606EC7E4767C788368")
+                .build();
+        //adRequest.isTestDevice(context);
+        mAdView.loadAd(adRequest);
+        askReadWritePermissions(this, this::initButtons);
+        purchases = new MainPurchases(this);
+    }
 
-            if (result.isFailure()) {
-                return;
-            }
-
-            Purchase removeAdsPurchase = inventory.getPurchase(SKU_REMOVE_ADS);
-
-            if (removeAdsPurchase != null) {
-                removeAds();
-            }
-        }
-    };
-
-
-    // Callback for when a purchase is finished
-    IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener = new IabHelper.OnIabPurchaseFinishedListener() {
-        public void onIabPurchaseFinished(IabResult result, Purchase purchase) {
-
-            // if we were disposed of in the meantime, quit.
-            if (mHelper == null)
-                return;
-
-            if (result.isFailure()) {
-                return;
-            }
-
-            if (purchase.getSku().equals(SKU_REMOVE_ADS)) {
-                // bought the premium upgrade!
-                Toast.makeText(context,"welcome to premium, m8 :)",Toast.LENGTH_SHORT).show();
-                removeAds();
-
-            }
-        }
-    };
-
-    private void removeAds() {
+    public void removeAds() {
         adContainer.setVisibility(View.INVISIBLE);
         //upgrade.setVisibility(View.GONE);
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putString("PREMIUM",getString(R.string.premium)).apply();
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putString("PREMIUM", getString(R.string.premium)).apply();
         upgrade.setImageResource(R.drawable.premium);
         Resources r = context.getResources();
         int dim = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, r.getDisplayMetrics());
@@ -119,117 +86,30 @@ public class MainActivity extends AppCompatActivity {
         //premium.setVisibility(View.VISIBLE);
     }
 
-    // Called by button press
-    private void buyProUpgrade()  {
-        try {
-            mHelper.launchPurchaseFlow(this, SKU_REMOVE_ADS, RC_REQUEST,
-                    mPurchaseFinishedListener, "payLoad");
-        } catch (IabHelper.IabAsyncInProgressException e) {
-            e.printStackTrace();
-        }
-    }
-
-    IabHelper mHelper;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        context = getApplicationContext();
-        camera = (ImageView) findViewById(R.id.photo);
-        selector = (ImageView)findViewById(R.id.choose);
-        upgrade = (ImageView)findViewById(R.id.upgrade);
-        adContainer = (LinearLayout) findViewById(R.id.adsContainer);
-        MobileAds.initialize(this, getString(R.string.admob_id));
-        mAdView = (AdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder()
-                //.addTestDevice("9B4E29286B48BF606EC7E4767C788368")
-                .build();
-        //adRequest.isTestDevice(context);
-        mAdView.loadAd(adRequest);
+    public void askReadWritePermissions(Activity context, PermissionsCallback callback) {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-            if(!hasPermissions(context,PERMISSIONS)){
-                ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_WRITE_EXTERNAL_STORAGE);
-            }else{
-                initChoosePicButton();
-                initCameraButton();
-                setUpgradeButton();
+            if (!hasPermissions(context, PERMISSIONS)) {
+                ActivityCompat.requestPermissions(context, PERMISSIONS, REQUEST_WRITE_EXTERNAL_STORAGE);
+            } else {
+                callback.onPermissionsAccepted();
             }
-        }else{
-            initChoosePicButton();
-            initCameraButton();
-            setUpgradeButton();
+        } else {
+            callback.onPermissionsAccepted();
+
         }
-
-        mHelper = new IabHelper(this, getString(R.string.billingKey));
-        mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
-            public void onIabSetupFinished(IabResult result) {
-                if (!result.isSuccess()) {
-                    return;
-                }
-                if (mHelper == null)
-                    return;
-                try {
-                    mHelper.queryInventoryAsync(mGotInventoryListener);
-                } catch (IabHelper.IabAsyncInProgressException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-    }
-    public static boolean hasPermissions(Context context, String... permissions) {
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
-            for (String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-
-    private void setUpgradeButton() {
-        upgrade.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showUpgradeDialog();
-            }
-        });
-    }
-
-    private void showUpgradeDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        builder.setMessage("You want Dank meme faces, drawing mode, removed ads and some meme sounds? Then click Yeah m8 :)");
-
-        builder.setPositiveButton("Yeah", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-                buyProUpgrade();
-            }
-        });
-        builder.setNegativeButton("Nope", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        builder.show();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mHelper != null) {
+        if (purchases.getmHelper() != null) {
             try {
-                mHelper.dispose();
+                purchases.getmHelper().dispose();
             } catch (IabHelper.IabAsyncInProgressException e) {
                 e.printStackTrace();
             }
-            mHelper = null;
+            purchases.setmHelper(null);
         }
         if (mAdView != null) {
             mAdView.destroy();
@@ -254,60 +134,63 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case REQUEST_WRITE_EXTERNAL_STORAGE: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    initChoosePicButton();
-                    initCameraButton();
-                    setUpgradeButton();
+                    initButtons();
                 } else {
-                    Toast.makeText(context,"permission denied",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "permission denied", Toast.LENGTH_SHORT).show();
                 }
             }
 
         }
     }
 
-
-    private void initChoosePicButton(){
-        selector.setOnClickListener(new View.OnClickListener() {
+    private void initButtons() {
+        upgrade.setOnClickListener(view -> showUpgradeDialog(this, new DialogCallback() {
             @Override
-            public void onClick(View v) {
-                Intent i = new Intent(
-                        Intent.ACTION_PICK,
-                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(i, IMG_REQUEST_CODE);
+            public void savePressed() {
+                purchases.buyProUpgrade();
             }
+        }));
+
+        take_photo.setOnClickListener(v -> {
+            openBackCamera(android.provider.MediaStore.ACTION_IMAGE_CAPTURE, CAMERA_REQUEST_PHOTO, ".jpg");
+        });
+
+        uploadPhoto.setOnClickListener(v -> {
+            Intent i = new Intent(
+                    Intent.ACTION_PICK,
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(i, IMG_REQUEST_CODE);
+        });
+        takeVideo.setOnClickListener(v -> {
+            openBackCamera(MediaStore.ACTION_VIDEO_CAPTURE, CAMERA_REQUEST_VIDEO, ".mp4");
+        });
+        uploadVideo.setOnClickListener(v -> {
+            Intent i = new Intent(
+                    Intent.ACTION_PICK,
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(i, VIDEO_REQUEST_CODE);
         });
     }
 
-    private void initCameraButton(){
-        camera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openBackCamera();
-            }
-        });
-    }
-
-    private String pictureImagePath = "";
+    private String mediaPath = "";
     Uri outputFileUri;
 
-    private void openBackCamera() {
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-        pictureImagePath = storageDir.getAbsolutePath() + "/lopas.jpg";
-        File file = new File(pictureImagePath);
-       // outputFileUri = Uri.fromFile(file);
+    private void openBackCamera(String mediaMode, Integer requestCode, String mediaTypeExtension) {
+        mediaPath = Utils.getPath() + "/lopas" + mediaTypeExtension;
+        File file = new File(mediaPath);
+        // outputFileUri = Uri.fromFile(file);
         outputFileUri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
-        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        Intent cameraIntent = new Intent(mediaMode);
         cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-        if (cameraIntent.resolveActivity(getPackageManager())!=null) {
-            startActivityForResult(cameraIntent, CAMERA_REQUEST);
+        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(cameraIntent, requestCode);
         }
     }
 
@@ -315,57 +198,39 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (mHelper == null)
-            return ;
+        if (purchases.getmHelper() == null)
+            return;
 
         // Pass on the activity result to the helper for handling
-        if (!mHelper.handleActivityResult(requestCode, resultCode, data)) {
+        if (!purchases.getmHelper().handleActivityResult(requestCode, resultCode, data)) {
+            if (resultCode != Activity.RESULT_OK) return;
+
             if (requestCode == IMG_REQUEST_CODE) {
-                if (resultCode == Activity.RESULT_OK && data != null) {
-                    Uri selectedImage = data.getData();
-                    try {
-                        Bitmap bmp = ProcessImage.getCorrectlyOrientedImage(context,selectedImage);
-                        createImageFromBitmap(bmp);
-                        Intent intent = new Intent(this,PlayActivity.class);
-                        startActivity(intent);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                if (data != null) {
+                    startPlayActivity(data.getData().toString(),"gallery","");
                 }
             }
-            if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
-                File imgFile = new  File(pictureImagePath);
-                if(imgFile.exists()) {
-                    try {
-                        Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-
-                        myBitmap = rotateImageIfRequired(myBitmap,context,imgFile.getAbsolutePath());
-                        createImageFromBitmap(myBitmap);
-                        Intent intent = new Intent(this, PlayActivity.class);
-                        startActivity(intent);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            if (requestCode == CAMERA_REQUEST_PHOTO) {
+                File imgFile = new File(mediaPath);
+                if (imgFile.exists()) {
+                    startPlayActivity(imgFile.getPath(),"uploadPhoto","");
+                }
+            }
+            if (requestCode == CAMERA_REQUEST_VIDEO) {
+                File imgFile = new File(mediaPath);
+                if (imgFile.exists()) {
+                    startVideoMakerActivity(imgFile.getPath());
+                }
+            }
+            if (requestCode == VIDEO_REQUEST_CODE) {
+                if (data != null) {
+                    startVideoMakerActivity(data.getData().toString());
                 }
             }
         } else {
             return;
         }
+    }
 
-    }
-    public String createImageFromBitmap(Bitmap bitmap) {
-        String fileName = "myImage";//no .png or .jpg needed
-        try {
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-            FileOutputStream fo = openFileOutput(fileName, Context.MODE_PRIVATE);
-            fo.write(bytes.toByteArray());
-            // remember close file output
-            fo.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fileName = null;
-        }
-        return fileName;
-    }
+
 }

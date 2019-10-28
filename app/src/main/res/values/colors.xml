@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimary">#000000</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#FF4081</color>
     <color name="listViewBackground">#67868483</color>
+    <color name="listViewBackground2">#85000000</color>
+
+    <color name="line_color">#2E7D32</color>
+    <color name="background_video_color">#2f3031</color>
+    <color name="shadow_color">#FF000000</color>
+    <color name="hint_bg">#599B9898</color>
+
 </resources>

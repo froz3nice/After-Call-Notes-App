@@ -7,4 +7,10 @@
         android:layout_width="150dp"
         android:layout_marginBottom="10dp"
         android:layout_height="150dp" />
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/gif"
+        android:layout_width="150dp"
+        android:visibility="gone"
+        android:layout_marginBottom="10dp"
+        android:layout_height="150dp" />
 </LinearLayout>

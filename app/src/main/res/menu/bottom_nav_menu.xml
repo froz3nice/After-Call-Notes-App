@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item
+        android:id="@+id/action_snoop"
+        android:enabled="true"
+        android:icon="@drawable/joint_glasses_selector"
+        android:longClickable="true"
+        android:title="snoop"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_save"
+        android:enabled="true"
+        android:icon="@drawable/save_selectore"
+        android:title="save"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_share"
+        android:enabled="true"
+        android:icon="@drawable/share_selector"
+        android:title="share"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_new_sticker"
+        android:enabled="true"
+        android:icon="@drawable/new_sticker_selector"
+        android:title="add"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_photo_lib"
+        android:enabled="true"
+        android:icon="@drawable/galery_selector"
+        android:title="gallery"
+        app:showAsAction="ifRoom" />
+
+</menu>

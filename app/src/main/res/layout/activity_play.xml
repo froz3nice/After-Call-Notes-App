@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_play"
@@ -9,22 +8,22 @@
     android:background="@android:color/black"
     android:fitsSystemWindows="true">
 
-
     <ImageView
         android:id="@+id/chosen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:adjustViewBounds="true"
-        android:scaleType="centerInside" />
+        android:scaleType="matrix" />
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/snoop"
         android:layout_width="80dp"
         android:layout_height="200dp"
-        android:layout_gravity="bottom|start"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        android:layout_above="@id/bottom_nav"
         android:layout_marginEnd="40dp"
-        android:layout_marginRight="40dp"
         android:adjustViewBounds="true"
         android:scaleType="centerInside"
         android:visibility="invisible" />
@@ -33,147 +32,136 @@
         android:id="@+id/adsContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom">
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_gravity="bottom|center_horizontal">
 
         <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
             android:id="@+id/adView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            ads:adSize="BANNER"
-            ads:adUnitId="@string/admob_id"></com.google.android.gms.ads.AdView>
+            android:layout_gravity="center_horizontal"
+            ads:adSize="SMART_BANNER"
+            ads:adUnitId="@string/admob_id"/>
 
     </LinearLayout>
-
-
-    <ImageView
-        android:id="@+id/listview_appear"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="top|start"
-        android:layout_margin="10dp"
-        android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
-        android:visibility="gone"
-        app:srcCompat="@drawable/select_spiderman" />
-
-
-    <ImageView
-        android:id="@+id/play_music"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="top|center_horizontal"
-        android:layout_margin="10dp"
-        android:adjustViewBounds="true"
-        android:scaleType="centerInside"
-        android:visibility="gone"
-        app:srcCompat="@drawable/big_smoke_order_selector" />
-
-    <ImageView
-        android:id="@+id/txt"
-        android:layout_width="50dp"
-        android:layout_height="40dp"
-        android:layout_gravity="top|end"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="70dp"
-        android:adjustViewBounds="true"
-        android:scaleType="centerInside"
-        app:srcCompat="@drawable/text_selector" />
-
-
-
-    <ImageView
-        android:id="@+id/pencil"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="10dp"
-        android:adjustViewBounds="true"
-        android:scaleType="centerInside"
-        android:visibility="gone"
-        app:srcCompat="@drawable/pencil" />
-
-    <ImageView
-        android:id="@+id/palette"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="10dp"
-        android:layout_marginEnd="70dp"
-        android:layout_marginRight="70dp"
-        android:adjustViewBounds="true"
-        android:scaleType="centerInside"
-        android:visibility="gone"
-        app:srcCompat="@drawable/palette_button_selector" />
-
-    <ImageView
-        android:id="@+id/eraser"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="10dp"
-        android:layout_marginEnd="130dp"
-        android:layout_marginRight="130dp"
-        android:adjustViewBounds="true"
-        android:scaleType="centerInside"
-        android:visibility="gone"
-        app:srcCompat="@drawable/eraser" />
-
-    <ImageView
-        android:id="@+id/play"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="top|end"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="130dp"
-        android:adjustViewBounds="true"
-        android:clickable="true"
-        android:scaleType="centerInside"
-        android:visibility="gone"
-        app:srcCompat="@drawable/play_selector" />
-
-    <ImageView
-        android:id="@+id/record"
-        android:layout_width="50dp"
-        android:layout_height="40dp"
-        android:layout_gravity="top|end"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="190dp"
-        android:adjustViewBounds="true"
-        android:scaleType="centerInside"
-        app:srcCompat="@drawable/record" />
-
 
     <ListView
         android:id="@+id/listView"
         android:layout_width="150dp"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:visibility="invisible"
         android:background="@color/listViewBackground"
+        app:layout_constraintTop_toBottomOf="@id/type_listview"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/adsContainer"
+        android:layout_above="@id/adsContainer"
+        android:divider="@null" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/type_listview"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/listViewBackground2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_above="@id/adsContainer"
         android:divider="@null" />
 
     <!--   chosen elements -->
 
-    <ImageView
-        android:id="@+id/chosenPepe"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_gravity="end|center_vertical"
-        android:adjustViewBounds="true"
-        android:scaleType="matrix"
-        android:src="@drawable/pepe"
-        android:visibility="gone" />
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
+        android:layout_width="match_parent"
+        app:layout_constraintBottom_toTopOf="@id/adsContainer"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:background="@color/colorPrimary"
+        app:itemBackground="@color/colorPrimary"
+        app:labelVisibilityMode="unlabeled"
+        app:itemIconTint="@android:color/white"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemTextColor="@android:color/white"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/zoom_toggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:textAllCaps="false"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        android:layout_margin="20dp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_shape"
+        android:text="Zoom"/>
+
+    <Button
+        android:id="@+id/filter_toggle"
+        android:layout_width="wrap_content"
+        android:textAllCaps="false"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_margin="20dp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_shape"
+        android:text="Apply filter"/>
+
+    <Button
+        android:id="@+id/btn_song_select"
+        android:layout_width="wrap_content"
+        android:textAllCaps="false"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintRight_toLeftOf="@id/filter_toggle"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_margin="20dp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_shape"
+        android:text="Select song"/>
+    <include
+        android:id="@+id/hint_view"
+        android:layout_width="match_parent"
+        layout="@layout/hint_view"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        android:layout_height="0dp"/>
 
     <ImageView
-        android:id="@+id/save"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="top|end"
-        android:layout_margin="10dp"
+        android:id="@+id/zoom_minus"
+        android:layout_width="100dp"
+        android:visibility="gone"
+        android:layout_height="100dp"
+        android:src="@drawable/zoom_minus"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        app:layout_constraintLeft_toRightOf="@id/zoom_plus" />
+
+
+    <ImageView
+        android:id="@+id/zoom_plus"
+        android:layout_width="100dp"
+        android:visibility="gone"
+        android:layout_height="100dp"
+        android:src="@drawable/zoom_plus"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <ImageView
+        android:id="@+id/zoom_img"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:visibility="gone"
+        android:src="@drawable/zoom_img"
         android:adjustViewBounds="true"
-        android:clickable="true"
+        android:layout_margin="20dp"
         android:scaleType="centerInside"
-        app:srcCompat="@drawable/save_selector" />
-
-</FrameLayout>
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,7 +2,6 @@ package com.braz.prod.DankMemeStickers.StickerPackage;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -20,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.braz.prod.DankMemeStickers.Activities.ActivityInterfaces.ActivityCallback;
 import com.braz.prod.DankMemeStickers.R;
 
 
@@ -44,15 +44,21 @@ public abstract class StickerView extends FrameLayout{
 
     private final static int BUTTON_SIZE_DP = 30;
     private final static int SELF_SIZE_DP = 130;
-
+    public StickerView(Context context) {
+        super(context);
+        init(context);
+    }
     public StickerView(Context context,boolean isText) {
         super(context);
         isTextView = isText;
         init(context);
     }
-
-    public StickerView(Context context) {
+    ActivityCallback callback;
+    boolean isGif = false;
+    public StickerView(Context context, ActivityCallback callback,boolean isGif) {
         super(context);
+        this.callback = callback;
+        this.isGif = isGif;
         init(context);
     }
 
@@ -160,9 +166,7 @@ public abstract class StickerView extends FrameLayout{
                     ViewGroup myCanvas = ((ViewGroup)StickerView.this.getParent());
                     myCanvas.removeView(StickerView.this);
                     if(getOwnerId().equals("glasses")|| getOwnerId().equals("joint")) {
-                        Intent intent = new Intent();
-                        intent.setAction("com.remove.btn");
-                        getContext().sendBroadcast(intent);
+                        callback.onStickerRemoved();
                     }
                 }
             }
@@ -210,7 +214,6 @@ public abstract class StickerView extends FrameLayout{
             if(view.getTag().equals("DraggableViewGroup")) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        Log.v(TAG, "sticker view action down");
                         removeOtherBorders(view);
                         bringToFront();
                         setControlItemsHidden(false);
@@ -218,7 +221,6 @@ public abstract class StickerView extends FrameLayout{
                         move_orgY = event.getRawY();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        Log.v(TAG, "sticker view action move");
                         float offsetX = event.getRawX() - move_orgX;
                         float offsetY = event.getRawY() - move_orgY;
                         StickerView.this.setX(StickerView.this.getX()+offsetX);
@@ -227,14 +229,12 @@ public abstract class StickerView extends FrameLayout{
                         move_orgY = event.getRawY();
                         break;
                     case MotionEvent.ACTION_UP:
-                        Log.v(TAG, "sticker view action up");
                         setPrefs(view);
                         break;
                 }
             }else if(view.getTag().equals("iv_scale")){
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        Log.v(TAG, "iv_scale action down");
 
                         this_orgX = StickerView.this.getX();
                         this_orgY = StickerView.this.getY();
@@ -266,7 +266,6 @@ public abstract class StickerView extends FrameLayout{
 
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        Log.v(TAG, "iv_scale action move");
                         if(getOwnerId().equals("big_smoke")){
                             smoke.start();
                         }
@@ -280,7 +279,6 @@ public abstract class StickerView extends FrameLayout{
                                 Math.atan2(event.getRawY() - scale_orgY , event.getRawX() - scale_orgX)
                                         - Math.atan2(scale_orgY - centerY, scale_orgX - centerX))*180/Math.PI;
 
-                        Log.v(TAG, "angle_diff: "+angle_diff);
 
                         double length1 = getLength(centerX, centerY, scale_orgX, scale_orgY);
                         double length2 = getLength(centerX, centerY, event.getRawX(), event.getRawY());
@@ -358,11 +356,14 @@ public abstract class StickerView extends FrameLayout{
                         .edit().putFloat("xFixedGlasses", view.getX()).apply();
                 PreferenceManager.getDefaultSharedPreferences(getContext())
                         .edit().putFloat("yFixedGlasses", view.getY()).apply();
+                Log.d("glassesFixed",String.valueOf(view.getY()));
             } else if (getOwnerId().equals("joint")) {
                 PreferenceManager.getDefaultSharedPreferences(getContext())
                         .edit().putFloat("xFixedJoint", view.getX()).apply();
                 PreferenceManager.getDefaultSharedPreferences(getContext())
                         .edit().putFloat("yFixedJoint", view.getY()).apply();
+                Log.d("jointFixed",String.valueOf(view.getY()));
+
             }
         }
     }
@@ -432,7 +433,6 @@ public abstract class StickerView extends FrameLayout{
 
             LayoutParams params = (LayoutParams)this.getLayoutParams();
 
-            Log.v(TAG,"params.leftMargin: "+params.leftMargin);
 
             Rect border = new Rect();
             border.left = (int)this.getLeft()-params.leftMargin;

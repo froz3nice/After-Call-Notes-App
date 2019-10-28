@@ -1,96 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="com.braz.prod.DankMemeStickers.Activities.MainActivity">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:id="@+id/activity_main"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
-        tools:context="com.braz.prod.DankMemeStickers.Activities.MainActivity">
 
-    <LinearLayout
+    <Button
+        android:id="@+id/take_video"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:id="@+id/adsContainer">
+        android:background="@drawable/button_shape"
+        android:text="Take Video"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/upload_photo"
+        app:layout_constraintEnd_toStartOf="@+id/upload_video"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/upgrade" />
 
-        <com.google.android.gms.ads.AdView
-            xmlns:ads="http://schemas.android.com/apk/res-auto"
+    <Button
+        android:id="@+id/upload_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_shape"
+        android:text="Upload Video"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/upload_photo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/take_video"
+        app:layout_constraintTop_toBottomOf="@+id/upgrade" />
+
+
+    <Button
+        android:id="@+id/take_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_shape"
+        android:text="Take Photo"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/adsContainer"
+        app:layout_constraintEnd_toStartOf="@+id/upload_video"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/take_video" />
+
+    <Button
+        android:id="@+id/upload_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_shape"
+        android:text="Upload Photo"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/adsContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/take_video"
+        app:layout_constraintTop_toBottomOf="@+id/upload_video" />
+
+    <ImageView
+        android:id="@+id/upgrade"
+        android:layout_width="150dp"
+        android:layout_height="130dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/take_video"
+        app:layout_constraintTop_toBottomOf="@id/logo"
+        app:srcCompat="@drawable/upgrade_button_selector" />
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="200dp"
+        android:layout_height="70dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.05"
+        app:srcCompat="@drawable/logo" />
+
+    <LinearLayout
+        android:id="@+id/adsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
             android:id="@+id/adView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            ads:adSize="BANNER"
-            ads:adUnitId="@string/admob_id">
-        </com.google.android.gms.ads.AdView>
+            ads:adSize="SMART_BANNER"
+            ads:adUnitId="@string/admob_id" />
 
     </LinearLayout>
 
-    <ImageView
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        app:srcCompat="@drawable/upgrade_button_selector"
-        android:id="@+id/upgrade"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
 
-    <ImageView
-        android:layout_width="200dp"
-        android:layout_height="150dp"
-        app:srcCompat="@drawable/logo"
-        android:id="@+id/logo"
-        android:layout_above="@+id/upgrade"
-        android:layout_centerHorizontal="true" />
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:weightSum="2"
-        android:layout_below="@+id/upgrade"
-        android:layout_above="@+id/adsContainer"
-        android:orientation="horizontal" >
-
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:layout_weight="1">
-            <ImageView
-                android:id="@+id/photo"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:clickable="true"
-                android:focusable="true"
-                app:srcCompat="@drawable/take_photo_button_selector"
-                android:scaleType="centerInside"
-                android:adjustViewBounds="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:layout_weight="1">
-
-            <ImageView
-                android:id="@+id/choose"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:adjustViewBounds="true"
-                android:scaleType="centerInside"
-                android:clickable="true"
-                android:focusable="true"
-                app:srcCompat="@drawable/gallery_button_selectore"
-                android:layout_centerVertical="true"
-                android:layout_centerHorizontal="true" />
-        </RelativeLayout>
-    </LinearLayout>
-
-
-
-</RelativeLayout>
-
+</androidx.constraintlayout.widget.ConstraintLayout>

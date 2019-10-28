@@ -1,37 +1,18 @@
 package com.braz.prod.DankMemeStickers;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.EmbossMaskFilter;
-import android.graphics.MaskFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.os.Bundle;
-import android.text.InputType;
-import android.util.TypedValue;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-
-import com.braz.prod.DankMemeStickers.Activities.PlayActivity;
-
-import java.util.HashMap;
-
-import eltos.simpledialogfragment.color.SimpleColorDialog;
 
 /**
  * Created by juseris on 6/8/2017.
