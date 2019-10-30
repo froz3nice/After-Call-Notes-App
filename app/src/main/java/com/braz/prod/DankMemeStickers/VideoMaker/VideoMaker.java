@@ -79,10 +79,11 @@ public class VideoMaker {
 
     public void trimVideo(Integer minValue, Integer maxValue, Uri videoUri, VideoMakerCallback callback) {
         try {
-            Log.d("merge file name", videoUri.toString());
             String newFilePath = getPath() + "/" + getTimeStamp() + ".mp4";
             File outputFile = new File(newFilePath);
             File file = new File(getRealPathFromURI(context, videoUri));
+            Log.d("input file name", file.getPath());
+            Log.d("output file name", outputFile.getPath());
 
             //ffmpeg -i test.wmv -ss 00:03:00 -to 00:03:05 -c copy 1.wmv
 
@@ -95,18 +96,18 @@ public class VideoMaker {
             ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
                 @Override
                 public void onProgress(String message) {
-                    Log.d("FFmpeg message", message);
+                    Log.d("Trim video progress", message);
                 }
 
                 @Override
                 public void onFailure(String message) {
-                    Log.d("FFmpeg message", message);
+                    Log.d("Trim video Fail", message);
                     callback.onError();
                 }
 
                 @Override
                 public void onSuccess(String message) {
-                    Log.d("FFmpeg message", message);
+                    Log.d("Trim video success", message);
                     callback.onSuccess(outputFile.getPath());
                 }
 
@@ -134,18 +135,18 @@ public class VideoMaker {
 
                 @Override
                 public void onProgress(String message) {
-                    Log.d("FFmpeg message", message);
+                    Log.d("Last Frame progress", message);
                 }
 
                 @Override
                 public void onFailure(String message) {
-                    Log.d("FFmpeg message", message);
+                    Log.d("Last Frame onFailure", message);
                     callback.onError();
                 }
 
                 @Override
                 public void onSuccess(String message) {
-                    Log.d("FFmpeg message", message);
+                    Log.d("Last Frame onSuccess", message);
                     callback.onSuccess(outputFile.getPath());
                 }
 
@@ -221,7 +222,8 @@ public class VideoMaker {
                 }
 
             });
-        } catch (FFmpegCommandAlreadyRunningException e) {
+        } catch (FFmpegCommandAlreadyRunningException | RuntimeException e) {
+            progressListener.onFailed();
             e.printStackTrace();
         }
     }

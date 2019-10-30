@@ -27,6 +27,7 @@ import com.braz.prod.DankMemeStickers.Permissions.PermissionsCallback;
 import com.braz.prod.DankMemeStickers.R;
 import com.braz.prod.DankMemeStickers.util.PurchaseUtils.IabHelper;
 import com.braz.prod.DankMemeStickers.util.PurchaseUtils.MainPurchases;
+import com.braz.prod.DankMemeStickers.util.StorageUtils;
 import com.braz.prod.DankMemeStickers.util.Utils;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -150,6 +151,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initButtons() {
+        StorageUtils.makeFolder();
         upgrade.setOnClickListener(view -> showUpgradeDialog(this, new DialogCallback() {
             @Override
             public void savePressed() {

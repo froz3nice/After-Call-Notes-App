@@ -31,12 +31,18 @@ public class VideoMakerActivity extends BaseActivity implements VideoMakerCallba
 
         mVideoTrimmer = ((HgLVideoTrimmer) findViewById(R.id.timeLine));
         if (mVideoTrimmer != null) {
-            //mVideoTrimmer.setMaxDuration(maxDuration);
-            mVideoTrimmer.setMaxDuration(getTotalVideoMillis(this, videoUri));
-            mVideoTrimmer.setVideoMakerListener(this);
-            //mVideoTrimmer.setDestinationPath("/storage/emulated/0/DCIM/CameraCustom/");
-            mVideoTrimmer.setVideoURI(videoUri);
-            mVideoTrimmer.setVideoInformationVisibility(true);
+            try {
+                //mVideoTrimmer.setMaxDuration(maxDuration);
+                mVideoTrimmer.setMaxDuration(getTotalVideoMillis(this, videoUri));
+                mVideoTrimmer.setVideoMakerListener(this);
+                //mVideoTrimmer.setDestinationPath("/storage/emulated/0/DCIM/CameraCustom/");
+                mVideoTrimmer.setVideoURI(videoUri);
+                mVideoTrimmer.setVideoInformationVisibility(true);
+            }catch (RuntimeException e){
+                Toast.makeText(this,"Unable to process video",Toast.LENGTH_SHORT).show();
+                finish();
+                e.printStackTrace();
+            }
         }
     }
 

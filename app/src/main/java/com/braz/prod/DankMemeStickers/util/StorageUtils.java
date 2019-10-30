@@ -32,6 +32,13 @@ public class StorageUtils {
         }
     }
 
+    public static void makeFolder(){
+        File folder = new File(Utils.getPath());
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+    }
+
     public static String createImageFromBitmap(Context context,Bitmap bitmap) {
         String fileName = "myImage";//no .png or .jpg needed
         try {
