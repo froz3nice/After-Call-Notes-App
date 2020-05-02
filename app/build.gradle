@@ -5,9 +5,9 @@ android {
     defaultConfig {
         applicationId "com.braz.prod.DankMemeStickers"
         minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 17
-        versionName "1.13"
+        targetSdkVersion 28
+        versionCode 22
+        versionName "1.18"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -16,7 +16,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    buildToolsVersion "29.0.1"
+    buildToolsVersion "29.0.3"
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -32,6 +32,9 @@ dependencies {
     implementation 'com.facebook.fresco:fresco:1.8.0'
     // For animated GIF support
     implementation 'com.facebook.fresco:animated-gif:1.8.0'
+
+    implementation "com.leinardi.android:speed-dial:3.1.1"
+
     // Provide the Android support library (you might already have this or a similar dependency)
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'nl.bravobit:android-ffmpeg:1.1.1'

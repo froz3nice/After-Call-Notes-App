@@ -19,16 +19,22 @@ public class Function {
     static final String KEY_COUNT = "date";
     static final String TYPE = "TYPE";
 
-    public static HashMap<String, String> mappingInbox(String album, String path, String timestamp, String time, String count,String type)
+    public static HashMap<String, String> mappingInbox(String album, String path, String timestamp, String count,String type)
     {
         HashMap<String, String> map = new HashMap<String, String>();
         map.put(KEY_ALBUM, album);
         map.put(KEY_PATH, path);
         map.put(KEY_TIMESTAMP, timestamp);
-        map.put(KEY_TIME, time);
         map.put(KEY_COUNT, count);
         map.put(TYPE,type);
         return map;
+    }
+
+    public static String converToTime(Long timestamp)
+    {
+        Date date = new Date(timestamp);
+        DateFormat formatter = new SimpleDateFormat("dd/MM HH:mm");
+        return formatter.format(date);
     }
 
     public static String converToTime(String timestamp)

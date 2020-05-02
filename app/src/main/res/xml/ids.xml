@@ -1,0 +1,6 @@
+<resources>
+    <item name="action_zoom" type="id" />
+    <item name="action_select_song" type="id" />
+    <item name="action_apply_filter" type="id" />
+    <item name="action_rate_app" type="id" />
+</resources>

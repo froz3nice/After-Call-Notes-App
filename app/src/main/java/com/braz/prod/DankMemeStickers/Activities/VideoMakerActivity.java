@@ -55,12 +55,13 @@ public class VideoMakerActivity extends BaseActivity implements VideoMakerCallba
 
     @Override
     public void onSuccess(String videoPath) {
-        refreshGalery(videoPath);
+        refreshGalery(videoPath, this);
         runOnUiThread(() -> {
 
             videoMaker.loadLastFrameOfVideo(videoPath, new VideoMakerCallback() {
                 @Override
                 public void onSuccess(String file) {
+                    VideoMakerActivity.this.finish();
                     Toast.makeText(VideoMakerActivity.this, "Video trimmed!", Toast.LENGTH_SHORT).show();
                     startPlayActivity(file,"uploadPhoto",videoPath);
                 }

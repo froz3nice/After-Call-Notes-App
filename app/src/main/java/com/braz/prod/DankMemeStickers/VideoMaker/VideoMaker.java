@@ -47,11 +47,11 @@ public class VideoMaker {
     public void mergeAudioWithVideo(String fileName, int thugLifeSound, Callback callback) {
         Log.d("merge file name", fileName);
         writeMp3ToStorage(context, thugLifeSound);
-        String newFilePath = getPath() + "/" + getTimeStamp() + ".mp4";
+        String newFilePath = getPath(context) + "/" + getTimeStamp() + ".mp4";
         File outputFile = new File(newFilePath);
         //ffmpeg -i video.avi -i audio.mp3 -codec copy -shortest output.avi
 
-        String[] cmd = {"-i", fileName, "-i", getTempMp3Path(), "-codec", "copy", "-shortest", outputFile.getPath()};
+        String[] cmd = {"-i", fileName, "-i", getTempMp3Path(context), "-codec", "copy", "-shortest", outputFile.getPath()};
         try {
             ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
                 @Override
@@ -77,9 +77,10 @@ public class VideoMaker {
         }
     }
 
+
     public void trimVideo(Integer minValue, Integer maxValue, Uri videoUri, VideoMakerCallback callback) {
         try {
-            String newFilePath = getPath() + "/" + getTimeStamp() + ".mp4";
+            String newFilePath = getPath(context) + "/" + getTimeStamp() + ".mp4";
             File outputFile = new File(newFilePath);
             File file = new File(getRealPathFromURI(context, videoUri));
             Log.d("input file name", file.getPath());
@@ -108,6 +109,7 @@ public class VideoMaker {
                 @Override
                 public void onSuccess(String message) {
                     Log.d("Trim video success", message);
+                    StorageUtils.deleteFile(getRealPathFromURI(context, videoUri),context);
                     callback.onSuccess(outputFile.getPath());
                 }
 
@@ -120,7 +122,8 @@ public class VideoMaker {
     public void loadLastFrameOfVideo(String path, VideoMakerCallback callback) {
         try {
             Log.d("file name", path);
-            String newFilePath = getPath() + "/" + getTimeStamp() + ".jpg";
+            new File(getPath(context) + "/temp12" + ".jpg").delete();
+            String newFilePath = getPath(context) + "/temp12" + ".jpg";
             File outputFile = new File(newFilePath);
             //File file = new File(getRealPathFromURI(context,videoUri));
 
@@ -171,7 +174,7 @@ public class VideoMaker {
         Integer w = getScreenWidth(windowManager);
         Integer h = (input1Height > input2Height) ? input1Height : input2Height;
 
-        String croppedFilePath = getPath() + "/" + getTimeStamp() + "b" + ".mp4";
+        String croppedFilePath = getPath(context) + "/" + getTimeStamp() + "b" + ".mp4";
         //ffmpeg -i YourMovie.mp4 -vf "crop=640:256:0:36" YourCroppedMovie.mp4
         String[] cmd2 = {"-i", inputFile1, "-vf", "crop=" + w + ":" + h + ":0:50", croppedFilePath};
 
@@ -183,7 +186,7 @@ public class VideoMaker {
         Log.d("file2height", String.valueOf(getVideoHeight(inputFile2)));
 
         float p2 = (getScreenHeight(windowManager) - getVideoHeight(inputFile2)) / 2;
-        String newFilePath = getPath() + "/" + getTimeStamp() + "a" + ".mp4";
+        String newFilePath = getPath(context) + "/" + getTimeStamp() + "a" + ".mp4";
         File outputFile = new File(newFilePath);
         String[] cmd = {"-i",
                 inputFile2, "-i", inputFile1, "-filter_complex",
@@ -229,19 +232,24 @@ public class VideoMaker {
     }
 
     private float getProgressValue(String message,Integer totalDur){
-        Pattern timePattern = Pattern.compile("(?<=time=)[\\d:.]*");
-        Scanner sc = new Scanner(message);
+        try {
+            Pattern timePattern = Pattern.compile("(?<=time=)[\\d:.]*");
+            Scanner sc = new Scanner(message);
 
-        String match = sc.findWithinHorizon(timePattern, 0);
-        if (match != null) {
-            String[] matchSplit = match.split(":");
-            if (totalDur != 0) {
-                float progress = (Integer.parseInt(matchSplit[0]) * 3600 +
-                        Integer.parseInt(matchSplit[1]) * 60 +
-                        Float.parseFloat(matchSplit[2])) / totalDur ;
-                Log.d("progresss", String.valueOf(progress));
-                return (progress * 100) ;
+            String match = sc.findWithinHorizon(timePattern, 0);
+            if (match != null) {
+                String[] matchSplit = match.split(":");
+                if (totalDur != 0) {
+                    float progress = (Integer.parseInt(matchSplit[0]) * 3600 +
+                            Integer.parseInt(matchSplit[1]) * 60 +
+                            Float.parseFloat(matchSplit[2])) / totalDur;
+                    Log.d("progresss", String.valueOf(progress));
+                    return (progress * 100);
+                }
             }
+        }catch (NumberFormatException e){
+            e.printStackTrace();
+            return 99f;
         }
         return 0f;
     }
@@ -264,7 +272,7 @@ public class VideoMaker {
                         int h = Integer.parseInt(matchSplit[1]);
                         int x = Integer.parseInt(matchSplit[2]);
                         int y = Integer.parseInt(matchSplit[3]);
-                        String newFilePath = getPath() + "/" + getTimeStamp() + "c" + mediaSufix;
+                        String newFilePath = getPath(context) + "/" + getTimeStamp() + "c" + mediaSufix;
                         File outputFile = new File(newFilePath);
                         Log.d("output file", outputFile.getPath());
                         // -i input.mp4 -vf crop=1280:720:0:0 -c:a copy output.mp4

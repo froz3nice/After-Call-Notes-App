@@ -3,6 +3,7 @@ package com.braz.prod.DankMemeStickers.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
+import android.util.Log;
 
 import com.braz.prod.DankMemeStickers.Interfaces.Callback;
 
@@ -15,15 +16,15 @@ import java.io.InputStream;
 import static com.braz.prod.DankMemeStickers.util.Utils.getPath;
 
 public class StorageUtils {
-    public static void store(Bitmap bm, String fileName, Callback activity) {
-        final String dirPath = getPath();
+    public static void store(Context context,Bitmap bm, String fileName, Callback activity) {
+        final String dirPath = getPath(context);
         File dir = new File(dirPath);
         if (!dir.exists())
             dir.mkdirs();
         File file = new File(dirPath, fileName);
         try {
             FileOutputStream fOut = new FileOutputStream(file);
-            bm.compress(Bitmap.CompressFormat.PNG, 95, fOut);
+            bm.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
             fOut.flush();
             fOut.close();
             activity.onFinished(file.getPath());
@@ -32,8 +33,8 @@ public class StorageUtils {
         }
     }
 
-    public static void makeFolder(){
-        File folder = new File(Utils.getPath());
+    public static void makeFolder(Context context){
+        File folder = new File(Utils.getPath(context));
         if (!folder.exists()) {
             folder.mkdirs();
         }
@@ -57,27 +58,23 @@ public class StorageUtils {
 
     public static void deleteFile(String path, Context context) {
         try {
-            MediaScannerConnection.scanFile(context, new String[]{path},
-                    null, (path1, uri) -> {
-                        if (uri != null) {
-                            context.getContentResolver().delete(uri, null, null);
-                        }
-                    });
+            Log.e("Deleting_file",path);
+            new File(path).delete();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    public static String getTempMp3Path() {
-        return getPath() + "/temp_song.mp3";
+    public static String getTempMp3Path(Context context) {
+        return getPath(context) + "/temp_song.mp3";
     }
 
     public static void writeMp3ToStorage(Context context, int res) {
         try {
             InputStream in = context.getResources().openRawResource(res);
             FileOutputStream out = null;
-            out = new FileOutputStream(getTempMp3Path());
+            out = new FileOutputStream(getTempMp3Path(context));
             byte[] buff = new byte[1024];
             int read = 0;
             try {

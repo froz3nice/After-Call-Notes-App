@@ -3,6 +3,7 @@ package com.braz.prod.DankMemeStickers.Animation;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +25,7 @@ import static com.braz.prod.DankMemeStickers.util.Utils.getScreenWidth;
 
 public class Animator {
 
+    private final SharedPreferences prefs;
     Context context;
     ConstraintLayout layout;
     WindowManager windowManager;
@@ -56,6 +58,7 @@ public class Animator {
         this.xFixedGlasses = xFixedGlasses;
         this.snoopGif = snoopGif;
         this.wasSnoopInit = wasSnoopInit;
+        prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     public void setSnoopCoordinates(int xSnoopOriginal, int ySnoopOriginal) {
@@ -64,6 +67,7 @@ public class Animator {
     }
 
     private void animateSnoopDogg(SimpleDraweeView snoopGif, Integer ySnoopOriginal) {
+        if(!prefs.getBoolean("s_snoop",true))snoopGif.setVisibility(View.INVISIBLE);
         ObjectAnimator animX = ObjectAnimator.ofFloat(snoopGif, "x", 1600);
         ObjectAnimator animY = ObjectAnimator.ofFloat(snoopGif, "y", ySnoopOriginal);
         AnimatorSet animSetXY = new AnimatorSet();
@@ -127,15 +131,18 @@ public class Animator {
         Log.d("glassesYAfter", String.valueOf(yFixedGlasses));
         Log.d("jointYAfter", String.valueOf(yFixedJoint));
         if (glasses != null) {
-            animateObject(glasses, xFixedGlasses, yFixedGlasses, 3000);
+            boolean spin = prefs.getBoolean("s_glasses",true);
+            animateObject(glasses, xFixedGlasses, yFixedGlasses, 3000,spin);
         }
         if (joint != null) {
-            animateObject(joint, xFixedJoint, yFixedJoint, 3000);
+            boolean spin = prefs.getBoolean("s_joint",true);
+
+            animateObject(joint, xFixedJoint, yFixedJoint, 3000,spin);
         }
     }
 
 
-    public static void animateObject(StickerImageView img, float x, float y, long duration) {
+    public void animateObject(StickerImageView img, float x, float y, long duration, boolean spin) {
         img.setVisibility(View.VISIBLE);
         ObjectAnimator animX = ObjectAnimator.ofFloat(img, "x", x);
         ObjectAnimator animY = ObjectAnimator.ofFloat(img, "y", y);
@@ -143,7 +150,9 @@ public class Animator {
                 "rotation", img.getRotation(), img.getRotation() + 720f);
         AnimatorSet animSetXY = new AnimatorSet();
         animSetXY.setDuration(duration);
-        if (Math.random() < 0.5) {
+
+
+        if (spin) {
             animSetXY.playTogether(animX, animY, rotation);
         } else {
             animSetXY.playTogether(animX, animY);

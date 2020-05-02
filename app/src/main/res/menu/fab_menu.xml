@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_zoom"
+        android:enabled="true"
+        android:icon="@drawable/ic_zoom_out_map_black_24dp"
+        android:title="Create zoom animation"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_select_song"
+        android:enabled="true"
+        android:icon="@drawable/ic_music"
+        android:title="Select a song"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_apply_filter"
+        android:enabled="true"
+        android:icon="@drawable/ic_photo_filter_black_24dp"
+        android:title="Change Filter"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_rate_app"
+        android:enabled="true"
+        android:icon="@drawable/ic_star_black_24dp"
+        android:title="Rate app :)"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_settings"
+        android:enabled="true"
+        android:icon="@drawable/ic_settings_black_24dp"
+        android:title="Settings"
+        app:showAsAction="ifRoom" />
+</menu>

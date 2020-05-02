@@ -1,9 +1,12 @@
 package com.braz.prod.DankMemeStickers.Activities.Base;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,8 +18,18 @@ import java.io.File;
 
 public class BaseActivity extends AppCompatActivity {
 
-    protected void refreshGalery(String path) {
-        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(path))));
+    protected void refreshGalery(String path, Context context) {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        Uri contentUri = Uri.fromFile(new File(path));
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+        Log.i("ExternalStorage", "Scanned 22 " + path + ":");
+
+        MediaScannerConnection.scanFile(context, new String[]{path},
+                null, (path1, uri) -> {
+                    Log.i("ExternalStorage", "Scanned " + path1 + ":");
+                    Log.i("ExternalStorage", "-> uri=" + uri);
+                });
     }
 
     public void startPlayActivity(String path, String imageType, String videoPath) {

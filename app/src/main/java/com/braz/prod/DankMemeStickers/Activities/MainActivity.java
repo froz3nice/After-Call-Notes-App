@@ -22,13 +22,14 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
 import com.braz.prod.DankMemeStickers.Activities.Base.BaseActivity;
-import com.braz.prod.DankMemeStickers.Interfaces.DialogCallback;
+import com.braz.prod.DankMemeStickers.Activities.Gallery.AlbumActivity;
 import com.braz.prod.DankMemeStickers.Permissions.PermissionsCallback;
 import com.braz.prod.DankMemeStickers.R;
 import com.braz.prod.DankMemeStickers.util.PurchaseUtils.IabHelper;
 import com.braz.prod.DankMemeStickers.util.PurchaseUtils.MainPurchases;
 import com.braz.prod.DankMemeStickers.util.StorageUtils;
 import com.braz.prod.DankMemeStickers.util.Utils;
+import com.braz.prod.DankMemeStickers.util.view.CustomProgressBar;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -38,6 +39,8 @@ import java.io.File;
 import static com.braz.prod.DankMemeStickers.Permissions.Permissions.REQUEST_WRITE_EXTERNAL_STORAGE;
 import static com.braz.prod.DankMemeStickers.Permissions.Permissions.hasPermissions;
 import static com.braz.prod.DankMemeStickers.util.DialogUtils.showUpgradeDialog;
+import static com.braz.prod.DankMemeStickers.util.ImageProcessingUtils.getScreenShot;
+import static com.braz.prod.DankMemeStickers.util.Utils.getTimeStamp;
 
 public class MainActivity extends BaseActivity {
     private static final int IMG_REQUEST_CODE = 189;
@@ -45,7 +48,7 @@ public class MainActivity extends BaseActivity {
     private static final int CAMERA_REQUEST_PHOTO = 420;
     private static final int CAMERA_REQUEST_VIDEO = 421;
 
-    private Button take_photo, uploadPhoto, takeVideo, uploadVideo;
+    private Button take_photo, uploadPhoto, takeVideo, uploadVideo, gallery;
     private Context context;
     private AdView mAdView;
     private LinearLayout adContainer;
@@ -61,6 +64,8 @@ public class MainActivity extends BaseActivity {
         take_photo = findViewById(R.id.take_photo);
         uploadVideo = findViewById(R.id.upload_video);
         takeVideo = findViewById(R.id.take_video);
+        gallery = findViewById(R.id.gallery);
+
         upgrade = findViewById(R.id.upgrade);
         adContainer = findViewById(R.id.adsContainer);
         MobileAds.initialize(this, getString(R.string.admob_id));
@@ -151,13 +156,14 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initButtons() {
-        StorageUtils.makeFolder();
-        upgrade.setOnClickListener(view -> showUpgradeDialog(this, new DialogCallback() {
-            @Override
-            public void savePressed() {
-                purchases.buyProUpgrade();
-            }
-        }));
+        StorageUtils.makeFolder(this);
+        upgrade.setOnClickListener(view -> showUpgradeDialog(this, () -> purchases.buyProUpgrade()));
+        gallery.setOnClickListener(v -> {
+            Intent intent = new Intent(context, AlbumActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("name", "ThugLifeCreator");
+            startActivity(intent);
+        });
 
         take_photo.setOnClickListener(v -> {
             openBackCamera(android.provider.MediaStore.ACTION_IMAGE_CAPTURE, CAMERA_REQUEST_PHOTO, ".jpg");
@@ -184,7 +190,7 @@ public class MainActivity extends BaseActivity {
     Uri outputFileUri;
 
     private void openBackCamera(String mediaMode, Integer requestCode, String mediaTypeExtension) {
-        mediaPath = Utils.getPath() + "/lopas" + mediaTypeExtension;
+        mediaPath = Utils.getPath(this) + "/temp" + mediaTypeExtension;
         File file = new File(mediaPath);
         // outputFileUri = Uri.fromFile(file);
         outputFileUri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);

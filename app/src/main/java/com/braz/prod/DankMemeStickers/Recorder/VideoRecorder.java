@@ -103,9 +103,9 @@ public class VideoRecorder {
         return fileName;
     }
 
-    public void initRecorder() {
+    public void initRecorder(Context context) {
         try {
-            fileName = Utils.getPath() + "/" + Utils.getTimeStamp() + ".mp4";
+            fileName = Utils.getPath(context) + "/" + Utils.getTimeStamp() + ".mp4";
             Log.d("new file name", fileName);
             mMediaRecorder = new MediaRecorder();
             // mMediaRecorder.setAudioSource(MIC);

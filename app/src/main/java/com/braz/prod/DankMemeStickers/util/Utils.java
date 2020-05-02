@@ -8,7 +8,6 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
@@ -17,14 +16,13 @@ import android.widget.ImageView;
 import com.braz.prod.DankMemeStickers.Interfaces.Callback;
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Utils {
-    public static String getPath() {
-        return Environment.getExternalStorageDirectory().getAbsolutePath() + "/ThugLifeCreator";
+    public static String getPath(Context context) {
+        return context.getExternalFilesDir(null).getAbsolutePath() + "/ThugLifeCreator";
     }
 
     public static String getTimeStamp() {
@@ -63,7 +61,6 @@ public class Utils {
     }
 
 
-
     public static void loadImage(Context context, ImageView dawg, Callback callback) {
         try {
             final Bitmap bitmap = BitmapFactory.decodeStream(context
@@ -78,14 +75,6 @@ public class Utils {
                         @Override
                         public void onSuccess() {
                             callback.onFinished("");
-                            //do smth when picture is loaded successfully
-                            File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                            if (dir.isDirectory()) {
-                                String[] children = dir.list();
-                                for (int i = 0; i < children.length; i++) {
-                                    new File(dir, children[i]).delete();
-                                }
-                            }
                         }
 
                         @Override

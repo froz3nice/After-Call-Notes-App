@@ -81,6 +81,7 @@ public class DataProvider {
         songs.add(new Song(R.raw.serial_killer, "Serial killer"));
         songs.add(new Song(R.raw.madafaka, "Madafaka"));
         songs.add(new Song(R.raw.where_the_hood_at, "Where the hood at"));
+        songs.add(new Song(R.raw.silence, "No song"));
         return songs;
     }
 }

@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.braz.prod.DankMemeStickers.R;
+import com.braz.prod.DankMemeStickers.util.Utils;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Request;
 import com.squareup.picasso.RequestHandler;
@@ -97,8 +98,18 @@ public class AlbumActivity extends AppCompatActivity {
 
         protected String doInBackground(String... args) {
             String xml = "";
-
-            String path = "";
+            File[] media = new File(Utils.getPath(AlbumActivity.this)).listFiles();
+            for(File file : media){
+                String extension = file.getPath().substring(file.getPath().lastIndexOf("."));
+                if(extension.equals(".jpg")){
+                    Log.d("jpg",file.getPath()+ "   "+ extension);
+                    mediaList.add(Function.mappingInbox("", file.getPath(), Function.converToTime(file.lastModified()), null, "image"));
+                }else if(extension.equals(".mp4")){
+                    Log.d("mp4",file.getPath()+ "   "+ extension);
+                    mediaList.add(Function.mappingInbox("", file.getPath(), Function.converToTime(file.lastModified()), null, "video"));
+                }
+            }
+           /* String path = "";
             String album = "";
             String timestamp = "";
             Uri imagesUri = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
@@ -106,23 +117,29 @@ public class AlbumActivity extends AppCompatActivity {
 
             String[] projection = {MediaStore.MediaColumns.DATA,
                     MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.MediaColumns.DATE_MODIFIED};
-            Cursor videoCursor = getContentResolver().query(urivideo, projection, "bucket_display_name = \"" + album_name + "\"", null, null);
+            // Android/data/com.braz.prod.DankMemeStickers/files/ThugLifeCreator
+           // Cursor videoCursor = getContentResolver().query(urivideo, projection, "bucket_display_name = \"" + album_name + "\"", null, null);
+            Cursor videoCursor = getContentResolver().query(urivideo, projection,    MediaStore.Video.Media.DATA + " like ? ",
+                    new String[] {"%Android\"data\"com.braz.prod.DankMemeStickers\"files\"ThugLifeCreator%"}, null, null);
 
             Cursor imagesCursor = getContentResolver().query(imagesUri, projection, "bucket_display_name = \"" + album_name + "\"", null, null);
 
             while (imagesCursor.moveToNext()) {
                 path = imagesCursor.getString(imagesCursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
+                Log.d("images_path",path);
                 timestamp = imagesCursor.getString(imagesCursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED));
                 mediaList.add(Function.mappingInbox(album, path, timestamp, Function.converToTime(timestamp), null, "image"));
             }
             while (videoCursor.moveToNext()) {
+
                 path = videoCursor.getString(videoCursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA));
+                Log.d("images_path",path);
                 timestamp = videoCursor.getString(videoCursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_MODIFIED));
                 mediaList.add(Function.mappingInbox(album, path, timestamp, Function.converToTime(timestamp), null, "video"));
             }
             imagesCursor.close();
             videoCursor.close();
-
+*/
             Collections.sort(mediaList, new MapComparator(Function.KEY_TIMESTAMP, "dsc")); // Arranging photo album by timestamp decending
             return xml;
         }

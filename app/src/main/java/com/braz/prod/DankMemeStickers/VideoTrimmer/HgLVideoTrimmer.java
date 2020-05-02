@@ -44,6 +44,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
@@ -240,24 +241,30 @@ public class HgLVideoTrimmer extends FrameLayout implements OnThumbnailLoadedLis
         mVideoView.pause();
         startProgressBar();
         MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
-        mediaMetadataRetriever.setDataSource(getContext(), mSrc);
-        long METADATA_KEY_DURATION = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+        try {
+            mediaMetadataRetriever.setDataSource(getContext(), mSrc);
+            long METADATA_KEY_DURATION = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
 
-        if (mTimeVideo < MIN_TIME_FRAME) {
+            if (mTimeVideo < MIN_TIME_FRAME) {
 
-            if ((METADATA_KEY_DURATION - mEndPosition) > (MIN_TIME_FRAME - mTimeVideo)) {
-                mEndPosition += (MIN_TIME_FRAME - mTimeVideo);
-            } else if (mStartPosition > (MIN_TIME_FRAME - mTimeVideo)) {
-                mStartPosition -= (MIN_TIME_FRAME - mTimeVideo);
+                if ((METADATA_KEY_DURATION - mEndPosition) > (MIN_TIME_FRAME - mTimeVideo)) {
+                    mEndPosition += (MIN_TIME_FRAME - mTimeVideo);
+                } else if (mStartPosition > (MIN_TIME_FRAME - mTimeVideo)) {
+                    mStartPosition -= (MIN_TIME_FRAME - mTimeVideo);
+                }
             }
+
+
+            //-------------- TRIM HERE
+            Log.d("start Time", String.valueOf(mStartPosition / 1000));
+            Log.d("end Time", String.valueOf(mEndPosition / 1000));
+
+            videoMaker.trimVideo(mStartPosition, mEndPosition, mSrc, callback);
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
+            stopProgressBar();
+            Toast.makeText(getContext(),"Something happened, please try pressing trim again",Toast.LENGTH_SHORT).show();
         }
-
-
-        //-------------- TRIM HERE
-        Log.d("start Time", String.valueOf(mStartPosition / 1000));
-        Log.d("end Time", String.valueOf(mEndPosition / 1000));
-
-        videoMaker.trimVideo(mStartPosition, mEndPosition, mSrc, callback);
     }
 
     private void onClickVideoPlayPause() {
