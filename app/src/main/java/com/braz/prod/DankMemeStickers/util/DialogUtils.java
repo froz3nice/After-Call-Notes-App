@@ -2,16 +2,20 @@ package com.braz.prod.DankMemeStickers.util;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.Window;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.braz.prod.DankMemeStickers.Activities.Play.PlayActivity;
 import com.braz.prod.DankMemeStickers.Interfaces.DialogCallback;
 import com.braz.prod.DankMemeStickers.Interfaces.DialogListener;
+import com.braz.prod.DankMemeStickers.Interfaces.MemeSelectCallback;
 import com.braz.prod.DankMemeStickers.Interfaces.SongDialogCallback;
 import com.braz.prod.DankMemeStickers.Models.DataProvider;
 import com.braz.prod.DankMemeStickers.Models.Song;
@@ -31,6 +35,25 @@ public class DialogUtils {
         });
         builder.setNegativeButton("nope", (dialog, which) -> dialog.cancel());
         builder.show();
+    }
+
+    public static void showMemeSelectDialog(PlayActivity activity, MemeSelectCallback callback) {
+
+        String[] listItems = {"Coffin Dance", "Thug Life"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Choose meme");
+        builder.setIcon(R.drawable.doge);
+
+        builder.setItems(listItems, (d, which) -> {
+            if(which == 0){
+                callback.coffinDance();
+            }
+            if(which == 1) callback.thugLife();
+            d.cancel();
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     public static void showRecordDialog(Context activity, DialogListener callback) {
@@ -64,7 +87,7 @@ public class DialogUtils {
 
     public static void showMakeVideoDialog(Context context, DialogCallback callback) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Save thug life video? ");
+        builder.setTitle("Save video? ");
         builder.setMessage("This might take some time depending on video length :)");
 
         builder.setPositiveButton("save", (dialog, which) -> {

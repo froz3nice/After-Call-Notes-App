@@ -33,7 +33,7 @@ public class Function {
     public static String converToTime(Long timestamp)
     {
         Date date = new Date(timestamp);
-        DateFormat formatter = new SimpleDateFormat("dd/MM HH:mm");
+        DateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm");
         return formatter.format(date);
     }
 

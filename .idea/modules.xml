@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ThugLifeCreator.iml" filepath="$PROJECT_DIR$/ThugLifeCreator.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ThugLifeCreator.iml" filepath="$PROJECT_DIR$/ThugLifeCreator.iml" group="ThugLifeCreator" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="ThugLifeCreator/app" />
     </modules>
   </component>
 </project>

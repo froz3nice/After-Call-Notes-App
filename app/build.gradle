@@ -6,8 +6,8 @@ android {
         applicationId "com.braz.prod.DankMemeStickers"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 22
-        versionName "1.18"
+        versionCode 25
+        versionName "1.21"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

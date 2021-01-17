@@ -48,6 +48,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
 
 import com.braz.prod.DankMemeStickers.R;
 import com.braz.prod.DankMemeStickers.VideoMaker.VideoMaker;
@@ -258,7 +259,7 @@ public class HgLVideoTrimmer extends FrameLayout implements OnThumbnailLoadedLis
             //-------------- TRIM HERE
             Log.d("start Time", String.valueOf(mStartPosition / 1000));
             Log.d("end Time", String.valueOf(mEndPosition / 1000));
-
+            callback.videoDuration((mEndPosition / 1000) - (mStartPosition / 1000));
             videoMaker.trimVideo(mStartPosition, mEndPosition, mSrc, callback);
         }catch (IllegalArgumentException e){
             e.printStackTrace();

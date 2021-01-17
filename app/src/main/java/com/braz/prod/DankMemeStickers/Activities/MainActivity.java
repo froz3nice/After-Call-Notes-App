@@ -215,13 +215,13 @@ public class MainActivity extends BaseActivity {
 
             if (requestCode == IMG_REQUEST_CODE) {
                 if (data != null) {
-                    startPlayActivity(data.getData().toString(),"gallery","");
+                    startPlayActivity(data.getData().toString(),"gallery","",0);
                 }
             }
             if (requestCode == CAMERA_REQUEST_PHOTO) {
                 File imgFile = new File(mediaPath);
                 if (imgFile.exists()) {
-                    startPlayActivity(imgFile.getPath(),"uploadPhoto","");
+                    startPlayActivity(imgFile.getPath(),"uploadPhoto","",0);
                 }
             }
             if (requestCode == CAMERA_REQUEST_VIDEO) {

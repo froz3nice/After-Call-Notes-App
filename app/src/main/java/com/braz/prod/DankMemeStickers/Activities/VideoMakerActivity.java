@@ -11,6 +11,7 @@ import com.braz.prod.DankMemeStickers.VideoMaker.VideoMaker;
 import com.braz.prod.DankMemeStickers.VideoMaker.VideoMakerCallback;
 import com.braz.prod.DankMemeStickers.VideoTrimmer.HgLVideoTrimmer;
 
+import static com.braz.prod.DankMemeStickers.util.VideoUtils.getTimeString;
 import static com.braz.prod.DankMemeStickers.util.VideoUtils.getTotalVideoMillis;
 
 public class VideoMakerActivity extends BaseActivity implements VideoMakerCallback {
@@ -63,7 +64,12 @@ public class VideoMakerActivity extends BaseActivity implements VideoMakerCallba
                 public void onSuccess(String file) {
                     VideoMakerActivity.this.finish();
                     Toast.makeText(VideoMakerActivity.this, "Video trimmed!", Toast.LENGTH_SHORT).show();
-                    startPlayActivity(file,"uploadPhoto",videoPath);
+                    startPlayActivity(file,"uploadPhoto",videoPath,duration);
+                }
+
+                @Override
+                public void videoDuration(Integer duration) {
+
                 }
 
                 @Override
@@ -76,6 +82,11 @@ public class VideoMakerActivity extends BaseActivity implements VideoMakerCallba
     @Override
     public void onError() {
         //stopProgressBar();
+    }
+    Integer duration = 7;
+    @Override
+    public void videoDuration(Integer dur) {
+        duration = dur;
     }
 
 }

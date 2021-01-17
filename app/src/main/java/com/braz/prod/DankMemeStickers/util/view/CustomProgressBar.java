@@ -4,19 +4,23 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.content.Context;
-import android.util.Log;
+import android.content.Intent;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
-import android.widget.ImageView;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.braz.prod.DankMemeStickers.Activities.Gallery.AlbumActivity;
+import com.braz.prod.DankMemeStickers.Activities.Gallery.Function;
+import com.braz.prod.DankMemeStickers.Activities.Gallery.GaleryPreview;
+import com.braz.prod.DankMemeStickers.Activities.Play.PlayActivity;
 import com.braz.prod.DankMemeStickers.R;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
-import java.util.ArrayList;
+import java.io.File;
 
 public class CustomProgressBar {
 
@@ -24,7 +28,9 @@ public class CustomProgressBar {
     private Dialog mDialog;
     TextView progressText;
     ProgressBar mProgressBar;
-
+    AdView mAdView;
+    Button viewVideo;
+    PlayActivity activity;
     public static CustomProgressBar getInstance() {
         if (customProgress == null) {
             customProgress = new CustomProgressBar();
@@ -32,16 +38,23 @@ public class CustomProgressBar {
         return customProgress;
     }
 
-    public void showProgress(Context context, String message, boolean cancelable) {
+    public void showProgress(PlayActivity context, String message, boolean cancelable, boolean isPremium) {
         mDialog = new Dialog(context);
         // no tile for the dialog
-
+        activity = context;
         mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         mDialog.setContentView(R.layout.custom_progress_bar);
         mProgressBar = (ProgressBar) mDialog.findViewById(R.id.progress_bar);
+        viewVideo = (Button) mDialog.findViewById(R.id.view_video);
+
         //  mProgressBar.getIndeterminateDrawable().setColorFilter(context.getResources()
         // .getColor(R.color.material_blue_gray_500), PorterDuff.Mode.SRC_IN);
         progressText = (TextView) mDialog.findViewById(R.id.progress_text);
+        mAdView = mDialog.findViewById(R.id.adView);
+        if (!isPremium) {
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
         progressText.setText("" + message);
         progressText.setVisibility(View.VISIBLE);
         mProgressBar.setVisibility(View.VISIBLE);
@@ -61,16 +74,31 @@ public class CustomProgressBar {
         animator.start();
     }
 
-    public void setProgress(float status) {
-        mProgressBar.setProgress((int)status);
+    public void changeText(String progress) {
+        progressText.setText(progress);
     }
 
-    public void changeText(float percent) {
-        Log.d("OnProgress ",String.valueOf((int)percent));
-        progressText.setText(String.format("%d",(int)percent)+ " %");
+    public void hideProgress(String f, boolean b) {
+        viewVideo.setVisibility(View.VISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
+        progressText.setText("Video Done!");
+        viewVideo.setOnClickListener(view -> {
+            Intent intent = new Intent(activity, GaleryPreview.class);
+            intent.putExtra("path", f);
+            intent.putExtra("media_type", "video");
+            activity.startActivity(intent);
+            trulyHide();
+        });
+        if (!b) {
+            trulyHide();
+        }
     }
 
-    public void hideProgress() {
+    void trulyHide() {
+
+        if (mAdView != null) {
+            mAdView.destroy();
+        }
         if (mDialog != null) {
             mDialog.dismiss();
             mDialog.cancel();

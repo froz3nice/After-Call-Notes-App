@@ -32,12 +32,12 @@ public class BaseActivity extends AppCompatActivity {
                 });
     }
 
-    public void startPlayActivity(String path, String imageType, String videoPath) {
+    public void startPlayActivity(String path, String imageType, String videoPath,Integer duration) {
         Intent intent = new Intent(this, PlayActivity.class);
         intent.putExtra("image_uri", path);
         intent.putExtra("image_type", imageType);
         intent.putExtra("video_path", videoPath);
-
+        intent.putExtra("duration",duration);
         startActivity(intent);
     }
 

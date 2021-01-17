@@ -2,6 +2,7 @@ package com.braz.prod.DankMemeStickers.VideoMaker;
 
 import android.content.Context;
 import android.net.Uri;
+import android.telecom.Call;
 import android.util.Log;
 import android.view.WindowManager;
 
@@ -42,6 +43,50 @@ public class VideoMaker {
         } else {
             Log.d("FFmpeg message", "not supported");
         }
+    }
+
+    public void replaceAudioStream(String fileName,String from, String to, int thugLifeSound, VideoProgressListener callback) {
+        Log.d("merge file name", fileName);
+        writeMp3ToStorage(context, thugLifeSound);
+
+        trimAudio(getTempMp3Path(context),from,to, path -> {
+            String newFilePath = getPath(context) + "/" + getTimeStamp() + ".mp4";
+            File outputFile = new File(newFilePath);
+            //ffmpeg -i video.mp4 -i audio.wav -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 output.mp4
+
+            String[] cmd = {"-i", fileName, "-i", path, "-c:v", "copy", "-c:a", "aac",
+                    "-map", "0:v:0", "-map", "1:a:0", outputFile.getPath()};
+            try {
+                int totalDur = (getTotalVideoMillis(context, Uri.parse(fileName)) / 1000);
+                ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
+                    @Override
+                    public void onProgress(String message) {
+                        Log.d("FFmpeg message", message);
+                        if (getProgressValue(message, totalDur) != 0f) {
+                            float progress = getProgressValue(message, totalDur);
+                            if (progress <= 100)
+                                callback.onProgress("Adding meme sound... " + progress + "%");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(String message) {
+                        Log.d("FFmpeg message", message);
+                        callback.onFailed();
+                    }
+
+                    @Override
+                    public void onSuccess(String message) {
+                        Log.d("FFmpeg message", message);
+                        deleteFile(fileName, context);
+                        deleteFile(path, context);
+                        callback.onFinished(outputFile.getPath());
+                    }
+                });
+            } catch (FFmpegCommandAlreadyRunningException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void mergeAudioWithVideo(String fileName, int thugLifeSound, Callback callback) {
@@ -109,7 +154,7 @@ public class VideoMaker {
                 @Override
                 public void onSuccess(String message) {
                     Log.d("Trim video success", message);
-                    StorageUtils.deleteFile(getRealPathFromURI(context, videoUri),context);
+                    StorageUtils.deleteFile(getRealPathFromURI(context, videoUri), context);
                     callback.onSuccess(outputFile.getPath());
                 }
 
@@ -159,17 +204,17 @@ public class VideoMaker {
         }
     }
 
-    public void concatenate(String inputFile1, String inputFile2, VideoProgressListener progressListener) {
+    public void concatenate(String inputFile1, String memeType, String inputFile2, VideoProgressListener progressListener) {
         Log.d("file1 name", inputFile1);
         Log.d("file2 name", inputFile2);
-        Integer input1Height = 0,input2Height =0 ;
+        Integer input1Height = 0, input2Height = 0;
         try {
             input1Height = getVideoHeight(inputFile1);
             input2Height = getVideoHeight(inputFile2);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
             progressListener.onFailed();
-            return ;
+            return;
         }
         Integer w = getScreenWidth(windowManager);
         Integer h = (input1Height > input2Height) ? input1Height : input2Height;
@@ -188,6 +233,7 @@ public class VideoMaker {
         float p2 = (getScreenHeight(windowManager) - getVideoHeight(inputFile2)) / 2;
         String newFilePath = getPath(context) + "/" + getTimeStamp() + "a" + ".mp4";
         File outputFile = new File(newFilePath);
+
         String[] cmd = {"-i",
                 inputFile2, "-i", inputFile1, "-filter_complex",
                 "[0:v]scale=" + w + ":" + h + ":force_original_aspect_ratio=decrease,pad=" + w + ":" + h + ":0:(oh-ih)/2,setsar=1[v0]; " +
@@ -203,10 +249,10 @@ public class VideoMaker {
                 @Override
                 public void onProgress(String message) {
                     Log.d("FFmpeg progress", message);
-                    if(getProgressValue(message,totalDur) != 0f) {
-                        float progress = getProgressValue(message, totalDur) / 2;
+                    if (getProgressValue(message, totalDur) != 0f) {
+                        float progress = getProgressValue(message, totalDur);
                         if (progress <= 100)
-                            progressListener.onProgress(progress);
+                            progressListener.onProgress("Merging videos... " + progress + "%");
                     }
                 }
 
@@ -221,7 +267,7 @@ public class VideoMaker {
                     Log.d("FFmpeg success", message);
                     StorageUtils.deleteFile(inputFile1, context);
                     StorageUtils.deleteFile(inputFile2, context);
-                    cropMedia(outputFile.getPath(),".mp4", progressListener,totalDur);
+                    cropMedia(outputFile.getPath(), ".mp4", progressListener, totalDur);
                 }
 
             });
@@ -231,7 +277,7 @@ public class VideoMaker {
         }
     }
 
-    private float getProgressValue(String message,Integer totalDur){
+    private Integer getProgressValue(String message, Integer totalDur) {
         try {
             Pattern timePattern = Pattern.compile("(?<=time=)[\\d:.]*");
             Scanner sc = new Scanner(message);
@@ -244,17 +290,17 @@ public class VideoMaker {
                             Integer.parseInt(matchSplit[1]) * 60 +
                             Float.parseFloat(matchSplit[2])) / totalDur;
                     Log.d("progresss", String.valueOf(progress));
-                    return (progress * 100);
+                    return Math.round(progress * 100);
                 }
             }
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             e.printStackTrace();
-            return 99f;
+            return 99;
         }
-        return 0f;
+        return 0;
     }
 
-    public void cropMedia(String path,String mediaSufix, VideoProgressListener callback, int totalDur) {
+    public void cropMedia(String path, String mediaSufix, VideoProgressListener callback, int totalDur) {
         try {
             String[] cmd = {"-ss", "0", "-i", path, "-vframes", "10", "-vf", "cropdetect",
                     "-f", "null", "-"};
@@ -276,17 +322,17 @@ public class VideoMaker {
                         File outputFile = new File(newFilePath);
                         Log.d("output file", outputFile.getPath());
                         // -i input.mp4 -vf crop=1280:720:0:0 -c:a copy output.mp4
-                        String[] cmd2 = {"-i", path, "-vf", "crop="+w+":"+h+":"+x+":"+y,
+                        String[] cmd2 = {"-i", path, "-vf", "crop=" + w + ":" + h + ":" + x + ":" + y,
                                 "-c:a", "copy", outputFile.getPath()};
                         try {
-                            ffmpeg.execute(cmd2,new ExecuteBinaryResponseHandler(){
+                            ffmpeg.execute(cmd2, new ExecuteBinaryResponseHandler() {
                                 @Override
                                 public void onProgress(String message) {
                                     Log.d("FFmpeg message", message);
-                                    if(getProgressValue(message,totalDur) != 0f) {
-                                        float progress = (getProgressValue(message, totalDur) / 2) + 58;//random 58
+                                    if (getProgressValue(message, totalDur) != 0f) {
+                                        float progress = (getProgressValue(message, totalDur));
                                         if (progress <= 100)
-                                            callback.onProgress(progress);
+                                            callback.onProgress("Cropping videos... " + progress + "%");
                                     }
                                 }
 
@@ -306,6 +352,41 @@ public class VideoMaker {
                             e.printStackTrace();
                         }
                     }
+                }
+
+            });
+        } catch (FFmpegCommandAlreadyRunningException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void trimAudio(String path,String from, String to, Callback callback) {
+        //ffmpeg -i file.mkv -ss 00:00:20 -to 00:00:40 -c copy file-2.mkv
+        String newFilePath = getPath(context) + "/coffin" + ".mp3";
+        File outputFile = new File(newFilePath);
+        String[] cmd = {"-i", path, "-ss", from, "-to",to, "-c",
+                "copy", outputFile.getPath()};
+        Log.d("ipnut file", path);
+        Log.d("output file", outputFile.getPath());
+        try {
+            ffmpeg.execute(cmd, new ExecuteBinaryResponseHandler() {
+
+                @Override
+                public void onProgress(String message) {
+                    Log.d("Last Frame progress", message);
+                }
+
+                @Override
+                public void onFailure(String message) {
+                    Log.d("Last Frame onFailure", message);
+                }
+
+                @Override
+                public void onSuccess(String message) {
+                    Log.d("Last Frame onSuccess", message);
+                    File file = new File(path);
+                    if(file.exists()) file.delete();
+                    callback.onFinished(outputFile.getPath());
                 }
 
             });

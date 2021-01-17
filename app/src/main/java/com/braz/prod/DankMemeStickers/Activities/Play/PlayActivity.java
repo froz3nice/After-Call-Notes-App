@@ -16,7 +16,6 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -32,6 +31,7 @@ import com.braz.prod.DankMemeStickers.Activities.SettingsActivity;
 import com.braz.prod.DankMemeStickers.Animation.Animator;
 import com.braz.prod.DankMemeStickers.Interfaces.DialogListener;
 import com.braz.prod.DankMemeStickers.Interfaces.IOnFocusListenable;
+import com.braz.prod.DankMemeStickers.Interfaces.MemeSelectCallback;
 import com.braz.prod.DankMemeStickers.Models.DataProvider;
 import com.braz.prod.DankMemeStickers.Models.ImageModel;
 import com.braz.prod.DankMemeStickers.Models.Song;
@@ -56,7 +56,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -64,6 +63,7 @@ import static com.braz.prod.DankMemeStickers.Activities.Play.PlayFunctions.getDr
 import static com.braz.prod.DankMemeStickers.Recorder.VideoRecorder.REQUEST_CODE;
 import static com.braz.prod.DankMemeStickers.util.ImageProcessingUtils.getScreenShot;
 import static com.braz.prod.DankMemeStickers.util.ImageProcessingUtils.rotateImageIfRequired;
+import static com.braz.prod.DankMemeStickers.util.StorageUtils.writeMp4ToStorage;
 import static com.braz.prod.DankMemeStickers.util.Utils.getMainImageMatrix;
 import static com.braz.prod.DankMemeStickers.util.Utils.getPath;
 import static com.braz.prod.DankMemeStickers.util.Utils.getScreenHeight;
@@ -97,6 +97,7 @@ public class PlayActivity extends BaseActivity implements IOnFocusListenable, Ac
     private ImageView zoomPlus;
     private ImageView zoomMinus;
     private SoundPlayer soundPlayer;
+    private Integer duration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +109,10 @@ public class PlayActivity extends BaseActivity implements IOnFocusListenable, Ac
         mProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         videoRecorder = new VideoRecorder(this, mProjectionManager, getWindowManager());
         videoPath = getIntent().getStringExtra("video_path");
+        duration = getIntent().getIntExtra("duration",0);
+        from = String.valueOf(7 - duration);
+        if(duration >= 7) from = String.valueOf(0);
+        to = String.valueOf(21);
         isPremium = PreferenceManager.getDefaultSharedPreferences(context).getString("PREMIUM", "").equals(getString(R.string.premium));
         imageList = DataProvider.getImageDrawables();
         initAd();
@@ -214,7 +219,7 @@ public class PlayActivity extends BaseActivity implements IOnFocusListenable, Ac
         hintView.setOnTouchListener((view, motionEvent) -> {
             hintView.setVisibility(View.GONE);
             speedDialView.setVisibility(View.VISIBLE);
-           // zoomToggle.setVisibility(View.VISIBLE);
+            // zoomToggle.setVisibility(View.VISIBLE);
 //            filterToggle.setVisibility(View.VISIBLE);
 //            btnSongSelect.setVisibility(View.VISIBLE);
             return false;
@@ -385,24 +390,26 @@ public class PlayActivity extends BaseActivity implements IOnFocusListenable, Ac
             statusBarHeight = getStatusBarHeight();
         }
     }
+
     boolean filterPressed = false;
     boolean zoomPressed = false;
 
     SpeedDialView speedDialView;
+
     @SuppressLint("ClickableViewAccessibility")
     private void initBottomNavView() {
         bottomNavigationView = findViewById(R.id.bottom_nav);
 
-        speedDialView  = findViewById(R.id.speedDial);
-                speedDialView.addActionItem(
-                        new SpeedDialActionItem.Builder(R.id.action_zoom, R.drawable.zoom_img)
-                                .create());
+        speedDialView = findViewById(R.id.speedDial);
+        speedDialView.addActionItem(
+                new SpeedDialActionItem.Builder(R.id.action_zoom, R.drawable.zoom_img)
+                        .create());
         speedDialView.inflate(R.menu.fab_menu);
         speedDialView.setOnActionSelectedListener(new SpeedDialView.OnActionSelectedListener() {
             @Override
             public boolean onActionSelected(SpeedDialActionItem actionItem) {
-                switch (actionItem.getId()){
-                    case R.id.action_apply_filter :{
+                switch (actionItem.getId()) {
+                    case R.id.action_apply_filter: {
                         if (filterPressed) {
                             mainImage.clearColorFilter();
                         } else {
@@ -414,22 +421,22 @@ public class PlayActivity extends BaseActivity implements IOnFocusListenable, Ac
                         filterPressed = !filterPressed;
                         break;
                     }
-                    case R.id.action_rate_app :{
+                    case R.id.action_rate_app: {
                         launchMarket();
                         break;
                     }
-                    case R.id.action_zoom :{
-                        if(!zoomPressed) showZoomOptions();
+                    case R.id.action_zoom: {
+                        if (!zoomPressed) showZoomOptions();
                         else hideZoomOptions();
                         break;
                     }
-                    case R.id.action_select_song :{
+                    case R.id.action_select_song: {
                         DialogUtils.showSelectSong(PlayActivity.this, s -> {
                             song = s;
                         });
                         break;
                     }
-                    case R.id.action_settings :{
+                    case R.id.action_settings: {
                         startActivity(new Intent(PlayActivity.this, SettingsActivity.class));
                         break;
                     }
@@ -465,17 +472,29 @@ public class PlayActivity extends BaseActivity implements IOnFocusListenable, Ac
                     startActivity(intent);
                     break;
                 case R.id.action_snoop:
-                    DialogUtils.showRecordDialog(this, new DialogListener() {
+                    DialogUtils.showMemeSelectDialog(PlayActivity.this, new MemeSelectCallback() {
                         @Override
-                        public void savePressed() {
-                            initRecording(PlayActivity.this);
+                        public void thugLife() {
+                            DialogUtils.showRecordDialog(PlayActivity.this, new DialogListener() {
+                                @Override
+                                public void savePressed() {
+                                    initRecording(PlayActivity.this);
+                                }
+
+                                @Override
+                                public void cancelPressed() {
+                                    startThugLife(0f);
+                                }
+                            });
                         }
 
                         @Override
-                        public void cancelPressed() {
-                            startThugLife(0f);
+                        public void coffinDance() {
+                            writeMp4ToStorage(context, R.raw.coffin_dance);
+                            prepareMergeVideoDialog(getPath(context) + "/coffin_dance.mp4", "coffin");
                         }
                     });
+
                     break;
             }
             return true;
@@ -506,59 +525,92 @@ public class PlayActivity extends BaseActivity implements IOnFocusListenable, Ac
         if (isRecording) {
             videoRecorder.stopRecording(this);
             Toast.makeText(PlayActivity.this, "Video recording finished!", Toast.LENGTH_SHORT).show();
-            mergeVideoWithAudio();
+            mergeVideoWithAudio("thug");
             showSystemUI();
             bringBackAllUi();
             isRecording = false;
             zoomListener.restoreZoom(mainImage);
         }
     }
+    String from = "";
+    String to = "";
+    void mergeCoffinAudioWithVideo(String path) {
 
-    void mergeVideoWithAudio() {
-        videoMaker.mergeAudioWithVideo(videoRecorder.getFileName(), song.getRes(),
-                this::prepareMergeVideoDialog);
+        videoMaker.replaceAudioStream(path,from,to, R.raw.astro, new VideoProgressListener() {
+                    @Override
+                    public void onFinished(String file) {
+                        refreshGalery(file, PlayActivity.this);
+                        dialog.hideProgress(file, true);
+                        Toast.makeText(PlayActivity.this, "Video prepared!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onProgress(String progess) {
+                        dialog.changeText(progess);
+                    }
+
+                    @Override
+                    public void onFailed() {
+                        Toast.makeText(PlayActivity.this, "Video preparation failed :(", Toast.LENGTH_SHORT).show();
+                        new Handler().postDelayed(() -> {
+                            dialog.hideProgress(file,false);
+                        }, 200);
+                    }
+                }
+        );
     }
 
-    void prepareMergeVideoDialog(String path) {
+    void mergeVideoWithAudio(String memeType) {
+        videoMaker.mergeAudioWithVideo(videoRecorder.getFileName(), song.getRes(),
+                path -> prepareMergeVideoDialog(path, memeType)
+        );
+    }
+
+    void prepareMergeVideoDialog(String path, String memeType) {
         runOnUiThread(() -> {
             refreshGalery(path, PlayActivity.this);
             Log.d("file1 name", path);
             Log.d("file2 name", videoPath);
-            if (videoPath.isEmpty()) return;
+            if (videoPath.isEmpty()) {
+                Toast.makeText(PlayActivity.this, "No previous video found", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            if(!this.isFinishing())
-            DialogUtils.showMakeVideoDialog(PlayActivity.this, () -> {
-                doVideoConcatenating(path);
-                dialog = CustomProgressBar.getInstance();
-                dialog.showProgress(context, "0 %", false);
-                dialog.setProgress(0);
-            });
+            if (!this.isFinishing())
+                DialogUtils.showMakeVideoDialog(PlayActivity.this, () -> {
+                    doVideoConcatenating(path, memeType);
+                    dialog = CustomProgressBar.getInstance();
+                    dialog.showProgress(PlayActivity.this, "0 %", false,isPremium);
+                });
         });
     }
 
-    private void doVideoConcatenating(String thugLifeVideoPath) {
+    private void doVideoConcatenating(String thugLifeVideoPath, String memeType) {
 
-        videoMaker.concatenate(thugLifeVideoPath, videoPath, new VideoProgressListener() {
+        videoMaker.concatenate(thugLifeVideoPath,memeType, videoPath, new VideoProgressListener() {
             @Override
             public void onFinished(String file) {
-                refreshGalery(file, PlayActivity.this);
+                if (memeType == "thug") {
+                    refreshGalery(file, PlayActivity.this);
 
-                dialog.hideProgress();
-                Toast.makeText(PlayActivity.this, "Video prepared!", Toast.LENGTH_SHORT).show();
+                    dialog.hideProgress(file, true);
+                    Toast.makeText(PlayActivity.this, "Video prepared!", Toast.LENGTH_SHORT).show();
+                } else {
+                    mergeCoffinAudioWithVideo(file);
+                }
             }
 
             @Override
-            public void onProgress(float percent) {
-                Log.d("OnProgress ", String.valueOf(percent));
-                dialog.setProgress(percent);
-                dialog.changeText(percent);
+            public void onProgress(String progress) {
+                Log.d("OnProgress ", String.valueOf(progress));
+                dialog.changeText(progress);
             }
 
             @Override
             public void onFailed() {
                 Toast.makeText(PlayActivity.this, "Video preparation failed :(", Toast.LENGTH_SHORT).show();
                 new Handler().postDelayed(() -> {
-                    dialog.hideProgress();
+                    dialog.hideProgress(file, false);
                 }, 200);
             }
         });
@@ -573,14 +625,19 @@ public class PlayActivity extends BaseActivity implements IOnFocusListenable, Ac
 
 
     String file = "";
+
     void startSaving() {
         removeComponents();
         View rootView = getWindow().getDecorView().getRootView();
         file = getTimeStamp() + ".jpg";
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            ImageProcessingUtils.getScreenshotAndroid8(this, bitmap -> {
+                StorageUtils.store(this, bitmap, file, path -> { });
+            });
+        } else {
+            StorageUtils.store(this, getScreenShot(rootView), file, path -> { });
+        }
 
-        StorageUtils.store(this, getScreenShot(rootView), file, path -> {
-
-        });
         bringBackAllUi();
     }
 

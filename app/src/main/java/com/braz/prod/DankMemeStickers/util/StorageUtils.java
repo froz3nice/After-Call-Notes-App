@@ -74,7 +74,33 @@ public class StorageUtils {
         try {
             InputStream in = context.getResources().openRawResource(res);
             FileOutputStream out = null;
+            File f = new File(getTempMp3Path(context));
+            if(f.exists()) f.delete();
             out = new FileOutputStream(getTempMp3Path(context));
+            byte[] buff = new byte[1024];
+            int read = 0;
+            try {
+                while ((read = in.read(buff)) > 0) {
+                    out.write(buff, 0, read);
+                }
+            } finally {
+                in.close();
+                out.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public static void writeMp4ToStorage(Context context, int res) {
+        try {
+            InputStream in = context.getResources().openRawResource(res);
+            FileOutputStream out = null;
+            File file = new File(getPath(context) + "/coffin_dance.mp4");
+            if (file.exists()) file.delete();
+            out = new FileOutputStream( getPath(context) + "/coffin_dance.mp4");
             byte[] buff = new byte[1024];
             int read = 0;
             try {

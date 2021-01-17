@@ -102,10 +102,11 @@ public class AlbumActivity extends AppCompatActivity {
             for(File file : media){
                 String extension = file.getPath().substring(file.getPath().lastIndexOf("."));
                 if(extension.equals(".jpg")){
-                    Log.d("jpg",file.getPath()+ "   "+ extension);
+                    Log.d("jpg",file.getPath()+ "   "+ extension + " "+ Function.converToTime(file.lastModified()));
+
                     mediaList.add(Function.mappingInbox("", file.getPath(), Function.converToTime(file.lastModified()), null, "image"));
                 }else if(extension.equals(".mp4")){
-                    Log.d("mp4",file.getPath()+ "   "+ extension);
+                    Log.d("mp4",file.getPath()+ "   "+ extension+ " "+ Function.converToTime(file.lastModified()));
                     mediaList.add(Function.mappingInbox("", file.getPath(), Function.converToTime(file.lastModified()), null, "video"));
                 }
             }
@@ -149,7 +150,14 @@ public class AlbumActivity extends AppCompatActivity {
 
             if (mediaList.isEmpty()) {
                 message.setVisibility(View.VISIBLE);
-            } else message.setVisibility(View.INVISIBLE);
+            } else{
+                for(HashMap<String,String> h: mediaList){
+                    Log.d("ordered",h.get(Function.KEY_TIMESTAMP));
+
+                    ;
+                }
+                message.setVisibility(View.INVISIBLE);
+            }
 
             adapter = new SingleAlbumAdapter(AlbumActivity.this, mediaList);
             galleryGridView.setAdapter(adapter);
